@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/yarsiemanym/advent-of-code-2022/common"
 	"github.com/yarsiemanym/advent-of-code-2022/day00"
+	"github.com/yarsiemanym/advent-of-code-2022/day01"
 	"github.com/yarsiemanym/advent-of-code-2022/vt100"
 )
 
@@ -84,6 +85,8 @@ func setupPuzzle() common.Puzzle {
 	switch puzzle.Day {
 	case 0:
 		puzzle.SetSolution(day00.Solve)
+	case 1:
+		puzzle.SetSolution(day01.Solve)
 	default:
 		log.Fatalf("Day %d has no solution yet.", puzzle.Day)
 	}
