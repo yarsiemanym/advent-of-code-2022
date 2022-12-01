@@ -43,12 +43,11 @@ func solvePart2(elves []elf) string {
 		caloriesCarriedByElf = append(caloriesCarriedByElf, elf.CountTotalCaloriesCarried())
 	}
 
-	sort.Ints(caloriesCarriedByElf)
-	length := len(caloriesCarriedByElf)
-	topThree := caloriesCarriedByElf[length-3:]
+	sort.Slice(caloriesCarriedByElf, func(i int, j int) bool { return i > j })
+	topThreeCalories := caloriesCarriedByElf[0:3]
 	sumOfTopThreeCalories := 0
 
-	for _, calories := range topThree {
+	for _, calories := range topThreeCalories {
 		sumOfTopThreeCalories += calories
 	}
 
