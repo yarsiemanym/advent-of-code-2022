@@ -23,10 +23,10 @@ func Test_Solve_Test1(t *testing.T) {
 	answer := Solve(puzzle)
 
 	if answer.Part1 != expectedName {
-		t.Errorf("Expected:\n%v\nActual:\n%v", expectedName, answer.Part1)
+		t.Errorf("Expected: %v, Actual:%v", expectedName, answer.Part1)
 	}
 
 	if answer.Part2 != strconv.Itoa(expectedAge) {
-		t.Errorf("Expected:\n%v\nActual:\n%v", expectedAge, answer.Part2)
+		t.Errorf("Expected: %v, Actual: %v", expectedAge, answer.Part2)
 	}
 }
