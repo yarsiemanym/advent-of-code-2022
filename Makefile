@@ -52,15 +52,18 @@ uninstall:
 .PHONY:
 setup: /usr/local/go/bin/go ~/.go deps
 
-.PHONY:
-deps:
-	go mod init
-	go mod tidy
-	go mod download
-
 /usr/local/go/bin/go:
 	sudo wget -c https://dl.google.com/go/go1.19.3.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
 
 ~/.go:
 	echo "export PATH=\$$PATH:/usr/local/go/bin:\$$HOME/go/bin:\$$HOME/.local/bin" | tee $(HOME)/.go
 	echo -e "\n. \$$HOME/.go" | tee -a $(HOME)/.bashrc
+
+.PHONY:
+deps: go.mod
+	go mod tidy
+	go mod download
+
+.PHONY:
+go.mod:
+	go mod init
