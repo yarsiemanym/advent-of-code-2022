@@ -90,6 +90,8 @@ func setupPuzzle() common.Puzzle {
 		puzzle.SetSolution(day01.Solve)
 	case 2:
 		puzzle.SetSolution(day02.Solve)
+	case 3:
+		puzzle.SetSolution(day02.Solve)
 	default:
 		log.Fatalf("Day %d has no solution yet.", puzzle.Day)
 	}
