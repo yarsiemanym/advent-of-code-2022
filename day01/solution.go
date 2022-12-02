@@ -10,9 +10,9 @@ import (
 func Solve(puzzle *common.Puzzle) common.Answer {
 	results := common.ParseFile(puzzle.InputFile, "\n\n", parseElf)
 
-	var elves []elf
+	var elves []*elf
 	for _, result := range results {
-		elves = append(elves, result.(elf))
+		elves = append(elves, result.(*elf))
 	}
 
 	return common.Answer{
@@ -23,7 +23,7 @@ func Solve(puzzle *common.Puzzle) common.Answer {
 	}
 }
 
-func solvePart1(elves []elf) string {
+func solvePart1(elves []*elf) string {
 	mostCalories := 0
 
 	for _, elf := range elves {
@@ -36,7 +36,7 @@ func solvePart1(elves []elf) string {
 	return strconv.Itoa(mostCalories)
 }
 
-func solvePart2(elves []elf) string {
+func solvePart2(elves []*elf) string {
 	caloriesCarriedByElf := make([]int, 0)
 
 	for _, elf := range elves {
@@ -57,7 +57,7 @@ func solvePart2(elves []elf) string {
 func parseElf(text string) interface{} {
 	lines := common.Split(text, "\n")
 
-	elf := elf{}
+	elf := &elf{}
 
 	for _, line := range lines {
 		calories, err := strconv.Atoi(line)
