@@ -1,8 +1,6 @@
 package day02
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yarsiemanym/advent-of-code-2022/common"
@@ -13,6 +11,7 @@ type part2Round struct {
 	DesiredOutcome  outcome
 }
 
+// Determine the choice you must make given the opponent's choice and the desired outcome.
 func (thisRound *part2Round) YourChoice() choice {
 	log.Debug("Determinging your choice.")
 	log.Debugf("opponentsChoice = %d", thisRound.OpponentsChoice)
@@ -34,10 +33,12 @@ func (thisRound *part2Round) YourChoice() choice {
 	}
 }
 
+// Calculate the score for this round given your choice and the outcome of the round.
 func (thisRound *part2Round) YourScore() int {
 	return int(thisRound.YourChoice()) + int(thisRound.DesiredOutcome)
 }
 
+// Parse a struct from the given line of text.
 func parsePart2Round(text string) interface{} {
 	if text == "" {
 		return nil
@@ -47,7 +48,6 @@ func parsePart2Round(text string) interface{} {
 
 	var opponentsChoice choice
 	var desiredOutcome outcome
-	var err error
 
 	switch tokens[0] {
 	case "A":
@@ -57,9 +57,8 @@ func parsePart2Round(text string) interface{} {
 	case "C":
 		opponentsChoice = scissors
 	default:
-		err = fmt.Errorf("invalid choice: %s", tokens[0])
+		log.Panicf("invalid choice: %s", tokens[0])
 	}
-	common.Check(err)
 
 	switch tokens[1] {
 	case "X":
@@ -69,9 +68,8 @@ func parsePart2Round(text string) interface{} {
 	case "Z":
 		desiredOutcome = win
 	default:
-		err = fmt.Errorf("invalid choice: %s", tokens[1])
+		log.Panicf("invalid choice: %s", tokens[1])
 	}
-	common.Check(err)
 
 	return &part2Round{
 		OpponentsChoice: opponentsChoice,

@@ -13,6 +13,7 @@ type part1Round struct {
 	YourChoice      choice
 }
 
+// Determine the outcome of the round given your choice and the opponent's choice.
 func (thisRound *part1Round) Outcome() outcome {
 	log.Debug("Determinging outcome of round.")
 	log.Debugf("opponentsChoice = %d", thisRound.OpponentsChoice)
@@ -32,10 +33,12 @@ func (thisRound *part1Round) Outcome() outcome {
 	}
 }
 
+// Calculate the score for this round given your choice and the outcome of the round.
 func (thisRound *part1Round) YourScore() int {
 	return int(thisRound.YourChoice) + int(thisRound.Outcome())
 }
 
+// Parse a struct from the given line of text.
 func parsePart1Round(text string) interface{} {
 	if text == "" {
 		return nil
