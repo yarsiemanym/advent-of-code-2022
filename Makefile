@@ -50,13 +50,13 @@ uninstall:
 	rm -f $(INSTALL_PATH)
 
 .PHONY:
-setup: /usr/local/go/bin/go ~/.go deps
-
-.PHONY:
-deps:
-	go mod init
+setup: go.mod
 	go mod tidy
 	go mod download
+
+.PHONY:
+go.mod: /usr/local/go/bin/go ~/.go
+	go mod init
 
 /usr/local/go/bin/go:
 	sudo wget -c https://dl.google.com/go/go1.19.3.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
