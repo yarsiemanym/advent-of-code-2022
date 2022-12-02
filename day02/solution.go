@@ -48,7 +48,7 @@ func solvePart1(rounds []*part1Round) string {
 }
 
 func solvePart2(rounds []*part2Round) string {
-	log.Debug("Solving part 1.")
+	log.Debug("Solving part 2.")
 
 	finalScore := 0
 
@@ -59,6 +59,6 @@ func solvePart2(rounds []*part2Round) string {
 		finalScore += round.YourScore()
 	}
 
-	log.Debug("Part 1 solved.")
+	log.Debug("Part 2 solved.")
 	return strconv.Itoa(finalScore)
 }
