@@ -53,18 +53,3 @@ func solvePart2(elves []*elf) string {
 
 	return strconv.Itoa(sumOfTopThreeCalories)
 }
-
-func parseElf(text string) interface{} {
-	lines := common.Split(text, "\n")
-
-	elf := &elf{}
-
-	for _, line := range lines {
-		calories, err := strconv.Atoi(line)
-		common.Check(err)
-
-		elf.Foods = append(elf.Foods, calories)
-	}
-
-	return elf
-}
