@@ -3,6 +3,8 @@ package day02
 import (
 	"strconv"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/yarsiemanym/advent-of-code-2022/common"
 )
 
@@ -30,21 +32,33 @@ func Solve(puzzle *common.Puzzle) common.Answer {
 }
 
 func solvePart1(rounds []*part1Round) string {
+	log.Debug("Solving part 1.")
+
 	finalScore := 0
 
-	for _, round := range rounds {
-		finalScore += round.YourScore()
+	for index, round := range rounds {
+		log.Debugf("Scoring round %d.", index)
+		score := round.YourScore()
+		log.Debugf("score = %d", score)
+		finalScore += score
 	}
 
+	log.Debug("Part 1 solved.")
 	return strconv.Itoa(finalScore)
 }
 
 func solvePart2(rounds []*part2Round) string {
+	log.Debug("Solving part 1.")
+
 	finalScore := 0
 
-	for _, round := range rounds {
+	for index, round := range rounds {
+		log.Debugf("Scoring round %d.", index)
+		score := round.YourScore()
+		log.Debugf("score = %d", score)
 		finalScore += round.YourScore()
 	}
 
+	log.Debug("Part 1 solved.")
 	return strconv.Itoa(finalScore)
 }

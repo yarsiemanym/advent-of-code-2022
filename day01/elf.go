@@ -24,6 +24,10 @@ func (thisElf *elf) CountTotalCaloriesCarried() int {
 }
 
 func parseElf(text string) interface{} {
+	if text == "" {
+		return nil
+	}
+
 	lines := common.Split(text, "\n")
 
 	elf := &elf{}

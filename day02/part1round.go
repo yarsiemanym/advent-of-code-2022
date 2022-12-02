@@ -3,6 +3,8 @@ package day02
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/yarsiemanym/advent-of-code-2022/common"
 )
 
@@ -12,14 +14,20 @@ type part1Round struct {
 }
 
 func (thisRound *part1Round) Outcome() outcome {
+	log.Debug("Determinging outcome of round.")
+	log.Debugf("opponentsChoice = %d", thisRound.OpponentsChoice)
+	log.Debugf("yourChoice = %d", thisRound.YourChoice)
 
 	if (thisRound.OpponentsChoice == rock && thisRound.YourChoice == paper) ||
 		(thisRound.OpponentsChoice == paper && thisRound.YourChoice == scissors) ||
 		(thisRound.OpponentsChoice == scissors && thisRound.YourChoice == rock) {
+		log.Debugf("outcome = %d", win)
 		return win
 	} else if thisRound.OpponentsChoice == thisRound.YourChoice {
+		log.Debugf("outcome = %d", draw)
 		return draw
 	} else {
+		log.Debugf("outcome = %d", lose)
 		return lose
 	}
 }
