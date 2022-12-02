@@ -1,8 +1,6 @@
 package day02
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yarsiemanym/advent-of-code-2022/common"
@@ -13,6 +11,7 @@ type part1Round struct {
 	YourChoice      choice
 }
 
+// Determine the outcome of the round given your choice and the opponent's choice.
 func (thisRound *part1Round) Outcome() outcome {
 	log.Debug("Determinging outcome of round.")
 	log.Debugf("opponentsChoice = %d", thisRound.OpponentsChoice)
@@ -32,10 +31,12 @@ func (thisRound *part1Round) Outcome() outcome {
 	}
 }
 
+// Calculate the score for this round given your choice and the outcome of the round.
 func (thisRound *part1Round) YourScore() int {
 	return int(thisRound.YourChoice) + int(thisRound.Outcome())
 }
 
+// Parse a struct from the given line of text.
 func parsePart1Round(text string) interface{} {
 	if text == "" {
 		return nil
@@ -45,7 +46,6 @@ func parsePart1Round(text string) interface{} {
 
 	var opponentsChoice choice
 	var yourChoice choice
-	var err error
 
 	switch tokens[0] {
 	case "A":
@@ -55,9 +55,8 @@ func parsePart1Round(text string) interface{} {
 	case "C":
 		opponentsChoice = scissors
 	default:
-		err = fmt.Errorf("invalid choice: %s", tokens[0])
+		log.Panicf("invalid choice: %s", tokens[0])
 	}
-	common.Check(err)
 
 	switch tokens[1] {
 	case "X":
@@ -67,9 +66,8 @@ func parsePart1Round(text string) interface{} {
 	case "Z":
 		yourChoice = scissors
 	default:
-		err = fmt.Errorf("invalid choice: %s", tokens[1])
+		log.Panicf("invalid choice: %s", tokens[1])
 	}
-	common.Check(err)
 
 	return &part1Round{
 		OpponentsChoice: opponentsChoice,
