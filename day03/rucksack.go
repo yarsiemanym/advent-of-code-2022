@@ -58,9 +58,9 @@ func determinePriority(itemTypes []rune) int {
 
 	for _, itemType := range itemTypes {
 		if unicode.IsUpper(itemType) {
-			priority += int(itemType) - 65 + 27
+			priority += int(itemType) - int('A') + 27
 		} else {
-			priority += int(itemType) - 97 + 1
+			priority += int(itemType) - int('a') + 1
 		}
 	}
 
