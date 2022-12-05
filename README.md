@@ -36,10 +36,10 @@ Deletes all build artifacts from the current directory, i.e. the `advent-of-code
 
 ### make run
 
-Builds the `advent-of-code-2022` executable and runs a single day's solution. Specify the day by setting the `DAY` parameter in the command line. Optionally, you can also set the `LOG_LEVEL` variable, otherwise it will default to `warn`.
+Builds the `advent-of-code-2022` executable and runs a single day's solution. Specify the day by setting the `DAY` parameter in the command line. Optionally, you can also set the `LOG_LEVEL` variable, otherwise it will default to `warn`. You can also specify an alternate `INPUT_FILE`, otherwise it will default to `day${DAY}/input.txt`.
 
 ```
-make run DAY=1 [LOG_LEVEL=trace]
+make run DAY=1 [LOG_LEVEL=trace] [INPUT_FILE={path/to/input/file.txt}]
 ```
 
 ### make run-all
