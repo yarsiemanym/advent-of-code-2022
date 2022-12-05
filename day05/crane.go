@@ -76,7 +76,7 @@ func parseCrane(text string) *crane {
 
 	return &crane{
 		Stacks:       parseStacks(tokens[0]),
-		Instructions: parseInstrictions(tokens[1]),
+		Instructions: parseInstructions(tokens[1]),
 	}
 
 }
@@ -117,7 +117,7 @@ func parseStacks(text string) []*common.Stack {
 	return stacks
 }
 
-func parseInstrictions(text string) []*instruction {
+func parseInstructions(text string) []*instruction {
 	if text == "" {
 		return nil
 	}
