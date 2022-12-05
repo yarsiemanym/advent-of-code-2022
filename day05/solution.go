@@ -8,8 +8,8 @@ import (
 
 func Solve(puzzle *common.Puzzle) common.Answer {
 	text := common.ReadFile(puzzle.InputFile)
-	crane1 := parsePart1Crane(text)
-	crane2 := parsePart2Crane(text)
+	crane1 := parseCrane(text)
+	crane2 := parseCrane(text)
 
 	return common.Answer{
 		Year:  puzzle.Year,
@@ -19,20 +19,20 @@ func Solve(puzzle *common.Puzzle) common.Answer {
 	}
 }
 
-func solvePart1(crane *part1Crane) string {
+func solvePart1(crane *crane) string {
 	log.Debug("Solving part 1.")
 
-	crane.ExecuteInstructions()
+	crane.ExecuteInstructions(crateMover9000)
 	topCrates := crane.PeekTopCrates()
 
 	log.Debug("Part 1 solved.")
 	return string(topCrates)
 }
 
-func solvePart2(crane *part2Crane) string {
+func solvePart2(crane *crane) string {
 	log.Debug("Solving part 2.")
 
-	crane.ExecuteInstructions()
+	crane.ExecuteInstructions(crateMover9001)
 	topCrates := crane.PeekTopCrates()
 
 	log.Debug("Part 2 solved.")

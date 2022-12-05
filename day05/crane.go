@@ -8,26 +8,54 @@ import (
 	"github.com/yarsiemanym/advent-of-code-2022/common"
 )
 
-type part1Crane struct {
+type model int
+
+const (
+	crateMover9000 model = 9000
+	crateMover9001 model = 9001
+)
+
+type crane struct {
 	Stacks       []*common.Stack
 	Instructions []*instruction
 }
 
-func (thisCrane *part1Crane) ExecuteInstructions() {
+func (thisCrane *crane) ExecuteInstructions(thisModel model) {
 	log.Debug("Executing instructions.")
 
 	for _, instruction := range thisCrane.Instructions {
 		log.Debugf("Executing instruction: \"%s\"", instruction)
 
-		for quantity := 0; quantity < instruction.Quantity; quantity++ {
-			from := thisCrane.Stacks[instruction.From-1]
-			to := thisCrane.Stacks[instruction.To-1]
-			to.Push(from.Pop())
+		switch thisModel {
+		case crateMover9000:
+			for quantity := 0; quantity < instruction.Quantity; quantity++ {
+				thisCrane.MoveCrates(1, instruction.From, instruction.To)
+			}
+		case crateMover9001:
+			thisCrane.MoveCrates(instruction.Quantity, instruction.From, instruction.To)
+		default:
+			log.Panicf("Unsupported model: %d", thisModel)
 		}
 	}
 }
 
-func (thisCrane *part1Crane) PeekTopCrates() []rune {
+func (thisCrane *crane) MoveCrates(quantity int, from int, to int) {
+	log.Debugf("Moving %d crates from stack %d to stack %d.", quantity, from, to)
+
+	fromStack := thisCrane.Stacks[from-1]
+	toStack := thisCrane.Stacks[to-1]
+	crates := common.NewStack()
+
+	for i := 0; i < quantity; i++ {
+		crates.Push(fromStack.Pop())
+	}
+
+	for i := 0; i < quantity; i++ {
+		toStack.Push(crates.Pop())
+	}
+}
+
+func (thisCrane *crane) PeekTopCrates() []rune {
 	topCrates := []rune{}
 
 	for _, stack := range thisCrane.Stacks {
@@ -37,7 +65,7 @@ func (thisCrane *part1Crane) PeekTopCrates() []rune {
 	return topCrates
 }
 
-func parsePart1Crane(text string) *part1Crane {
+func parseCrane(text string) *crane {
 	if text == "" {
 		return nil
 	}
@@ -46,7 +74,7 @@ func parsePart1Crane(text string) *part1Crane {
 
 	tokens := common.Split(text, "\n\n")
 
-	return &part1Crane{
+	return &crane{
 		Stacks:       parseStacks(tokens[0]),
 		Instructions: parseInstrictions(tokens[1]),
 	}
