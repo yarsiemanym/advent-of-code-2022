@@ -37,3 +37,14 @@ func (stack *Stack) Pop() interface{} {
 
 	return element
 }
+
+func (stack *Stack) Peek() interface{} {
+	if stack.IsEmpty() {
+		return nil
+	}
+
+	size := stack.Size()
+	element := stack.elements[size-1]
+
+	return element
+}
