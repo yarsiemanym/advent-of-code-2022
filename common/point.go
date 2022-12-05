@@ -99,7 +99,7 @@ func (point *Point) GetVonNeumannNeighbors() []*Point {
 	}
 }
 
-// Only orthagonally adjacent, excluding self.
+// Only orthagonally adjacent, including self.
 func (point *Point) GetVonNeumannNeighborhood() []*Point {
 	return []*Point{
 		New2DPoint(point.x, point.y+1),
@@ -110,7 +110,7 @@ func (point *Point) GetVonNeumannNeighborhood() []*Point {
 	}
 }
 
-// Both orthagonally and diagonally adjacent, including self.
+// Both orthagonally and diagonally adjacent, excluding self.
 func (point *Point) GetMooreNeighbors() []*Point {
 	return []*Point{
 		New2DPoint(point.x-1, point.y-1),
