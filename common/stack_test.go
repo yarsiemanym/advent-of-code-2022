@@ -91,3 +91,47 @@ func Test_stack_Pop_NotEmpty(t *testing.T) {
 		t.Errorf("Expected 0 but got %v.", len(stack.elements))
 	}
 }
+
+func Test_stack_Peek_Empty(t *testing.T) {
+	stack := &Stack{
+		elements: []interface{}{},
+		size:     0,
+	}
+
+	value := stack.Peek()
+
+	if value != nil {
+		t.Error("value is not nil.")
+	}
+
+	if stack.size != 0 {
+		t.Errorf("Expected 0 but got %v.", stack.size)
+	}
+
+	if len(stack.elements) != 0 {
+		t.Errorf("Expected 0 but got %v.", len(stack.elements))
+	}
+}
+
+func Test_stack_Peek_NotEmpty(t *testing.T) {
+	stack := &Stack{
+		elements: []interface{}{4},
+		size:     1,
+	}
+
+	value := stack.Peek()
+
+	if value == nil {
+		t.Error("value is nil.")
+	} else if value.(int) != 4 {
+		t.Errorf("Expected 4 but got %v.", value.(int))
+	}
+
+	if stack.size != 1 {
+		t.Errorf("Expected 0 but got %v.", stack.size)
+	}
+
+	if len(stack.elements) != 1 {
+		t.Errorf("Expected 0 but got %v.", len(stack.elements))
+	}
+}
