@@ -153,3 +153,75 @@ func Test_Point_RotateZ(t *testing.T) {
 		t.Errorf("Expected 3 but got %d.", rotatedPoint.Z())
 	}
 }
+
+func Test_Point_Get2DVonNeumannNeighborhood_Radius1(t *testing.T) {
+	point := New2DPoint(1, 2)
+	neighbors := point.Get2DVonNeumannNeighborhood(1)
+
+	if len(neighbors) != 5 {
+		t.Errorf("Expected a slice of length 5 but got %d.", len(neighbors))
+	}
+}
+
+func Test_Point_Get2DVonNeumannNeighborhood_Radius2(t *testing.T) {
+	point := New2DPoint(1, 2)
+	neighbors := point.Get2DVonNeumannNeighborhood(2)
+
+	if len(neighbors) != 13 {
+		t.Errorf("Expected a slice of length 13 but got %d.", len(neighbors))
+	}
+}
+
+func Test_Point_Get3DVonNeumannNeighborhood_Radius1(t *testing.T) {
+	point := New3DPoint(1, 2, 3)
+	neighbors := point.Get3DVonNeumannNeighborhood(1)
+
+	if len(neighbors) != 7 {
+		t.Errorf("Expected a slice of length 7 but got %d.", len(neighbors))
+	}
+}
+
+func Test_Point_Get3DVonNeumannNeighborhood_Radius2(t *testing.T) {
+	point := New3DPoint(1, 2, 3)
+	neighbors := point.Get3DVonNeumannNeighborhood(2)
+
+	if len(neighbors) != 25 {
+		t.Errorf("Expected a slice of length 25 but got %d.", len(neighbors))
+	}
+}
+
+func Test_Point_Get2DMooreNeighborhood_Radius1(t *testing.T) {
+	point := New2DPoint(1, 2)
+	neighbors := point.Get2DMooreNeighborhood(1)
+
+	if len(neighbors) != 9 {
+		t.Errorf("Expected a slice of length 9 but got %d.", len(neighbors))
+	}
+}
+
+func Test_Point_Get2DMooreNeighborhood_Radius2(t *testing.T) {
+	point := New2DPoint(1, 2)
+	neighbors := point.Get2DMooreNeighborhood(2)
+
+	if len(neighbors) != 25 {
+		t.Errorf("Expected a slice of length 25 but got %d.", len(neighbors))
+	}
+}
+
+func Test_Point_Get3DMooreNeighborhood_Radius1(t *testing.T) {
+	point := New3DPoint(1, 2, 3)
+	neighbors := point.Get3DMooreNeighborhood(1)
+
+	if len(neighbors) != 27 {
+		t.Errorf("Expected a slice of length 27 but got %d.", len(neighbors))
+	}
+}
+
+func Test_Point_Get3DMooreNeighborhood_Radius2(t *testing.T) {
+	point := New3DPoint(1, 2, 3)
+	neighbors := point.Get3DMooreNeighborhood(2)
+
+	if len(neighbors) != 125 {
+		t.Errorf("Expected a slice of length 125 but got %d.", len(neighbors))
+	}
+}

@@ -5,12 +5,12 @@ import (
 	"testing"
 )
 
-func Test_check_Error(t *testing.T) {
+func Test_Check_Error(t *testing.T) {
 	err := errors.New("This error is expected.")
 	assertPanic(t, func() { Check(err) })
 }
 
-func Test_check_NoError(t *testing.T) {
+func Test_Check_NoError(t *testing.T) {
 	Check(nil)
 }
 

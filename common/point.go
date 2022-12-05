@@ -89,54 +89,114 @@ func (point *Point) RotateZCounterClockwise() *Point {
 	return New3DPoint(0-point.Y(), point.X(), point.Z())
 }
 
-// Only orthagonally adjacent, excluding self.
-func (point *Point) GetVonNeumannNeighbors() []*Point {
-	return []*Point{
-		New2DPoint(point.x, point.y+1),
-		New2DPoint(point.x-1, point.y),
-		New2DPoint(point.x+1, point.y),
-		New2DPoint(point.x, point.y-1),
-	}
+// Only orthagonally adjacent.
+func (center *Point) Get2DVonNeumannNeighbors(radius int) []*Point {
+	neighborhood := center.Get2DVonNeumannNeighborhood(radius)
+	neighborhood = ExclusivePointers(neighborhood, []*Point{center})
+	return neighborhood
 }
 
-// Only orthagonally adjacent, including self.
-func (point *Point) GetVonNeumannNeighborhood() []*Point {
-	return []*Point{
-		New2DPoint(point.x, point.y+1),
-		New2DPoint(point.x-1, point.y),
-		New2DPoint(point.x, point.y),
-		New2DPoint(point.x+1, point.y),
-		New2DPoint(point.x, point.y-1),
+// Only orthagonally adjacent plus self.
+func (center *Point) Get2DVonNeumannNeighborhood(radius int) []*Point {
+	if radius <= 0 {
+		return []*Point{
+			New2DPoint(center.x, center.y),
+		}
 	}
+
+	immediateNeighborhood := []*Point{
+		New2DPoint(center.x, center.y+1),
+		New2DPoint(center.x-1, center.y-1),
+		New2DPoint(center.x, center.y),
+		New2DPoint(center.x+1, center.y),
+		New2DPoint(center.x+1, center.y+1),
+	}
+
+	extendedNeighborhood := []*Point{}
+
+	for _, neighbor := range immediateNeighborhood {
+		extendedNeighborhood = UnionPointers(extendedNeighborhood, neighbor.Get2DVonNeumannNeighborhood(radius-1))
+	}
+
+	extendedNeighborhood = UnionPointers(extendedNeighborhood, immediateNeighborhood)
+
+	return extendedNeighborhood
 }
 
-// Both orthagonally and diagonally adjacent, excluding self.
-func (point *Point) GetMooreNeighbors() []*Point {
-	return []*Point{
-		New2DPoint(point.x-1, point.y-1),
-		New2DPoint(point.x, point.y-1),
-		New2DPoint(point.x+1, point.y-1),
-		New2DPoint(point.x-1, point.y),
-		New2DPoint(point.x+1, point.y),
-		New2DPoint(point.x-1, point.y+1),
-		New2DPoint(point.x, point.y+1),
-		New2DPoint(point.x+1, point.y+1),
-	}
+// Both orthagonally and diagonally adjacent.
+func (center *Point) Get2DMooreNeighbors(radius int) []*Point {
+	neighborhood := center.Get2DMooreNeighborhood(radius)
+	neighborhood = ExclusivePointers(neighborhood, []*Point{center})
+	return neighborhood
 }
 
-// Both orthagonally and diagonally adjacent, including self.
-func (point *Point) GetMooreNeighborhood() []*Point {
-	return []*Point{
-		New2DPoint(point.x-1, point.y-1),
-		New2DPoint(point.x, point.y-1),
-		New2DPoint(point.x+1, point.y-1),
-		New2DPoint(point.x-1, point.y),
-		New2DPoint(point.x, point.y),
-		New2DPoint(point.x+1, point.y),
-		New2DPoint(point.x-1, point.y+1),
-		New2DPoint(point.x, point.y+1),
-		New2DPoint(point.x+1, point.y+1),
+// Both orthagonally and diagonally adjacent plus self.
+func (center *Point) Get2DMooreNeighborhood(radius int) []*Point {
+	neighbors := []*Point{}
+
+	for x := center.x - radius; x <= center.x+radius; x++ {
+		for y := center.y - radius; y <= center.y+radius; y++ {
+			neighbors = append(neighbors, New2DPoint(x, y))
+		}
 	}
+
+	return neighbors
+}
+
+// Only orthagonally adjacent.
+func (center *Point) Get3DVonNeumannNeighbors(radius int) []*Point {
+	neighborhood := center.Get3DVonNeumannNeighborhood(radius)
+	neighborhood = ExclusivePointers(neighborhood, []*Point{center})
+	return neighborhood
+}
+
+// Only orthagonally adjacent plus self.
+func (center *Point) Get3DVonNeumannNeighborhood(radius int) []*Point {
+	if radius <= 0 {
+		return []*Point{}
+	}
+
+	immediateNeighbors := []*Point{
+		New3DPoint(center.x, center.y+1, center.z),
+		New3DPoint(center.x-1, center.y, center.z),
+		New3DPoint(center.x+1, center.y, center.z),
+		New3DPoint(center.x, center.y, center.z),
+		New3DPoint(center.x, center.y-1, center.z),
+		New3DPoint(center.x, center.y, center.z-1),
+		New3DPoint(center.x, center.y, center.z+1),
+	}
+
+	neighbors := []*Point{}
+
+	for _, neighbor := range immediateNeighbors {
+		neighbors = UnionPointers(neighbors, neighbor.Get3DVonNeumannNeighborhood(radius-1))
+	}
+
+	neighbors = UnionPointers(neighbors, immediateNeighbors)
+
+	return neighbors
+}
+
+// Both orthagonally and diagonally adjacent.
+func (center *Point) Get3DMooreNeighbors(radius int) []*Point {
+	neighborhood := center.Get3DMooreNeighborhood(radius)
+	neighborhood = ExclusivePointers(neighborhood, []*Point{center})
+	return neighborhood
+}
+
+// Both orthagonally and diagonally adjacent plus self.
+func (center *Point) Get3DMooreNeighborhood(radius int) []*Point {
+	neighbors := []*Point{}
+
+	for x := center.x - radius; x <= center.x+radius; x++ {
+		for y := center.y - radius; y <= center.y+radius; y++ {
+			for z := center.z - radius; z <= center.z+radius; z++ {
+				neighbors = append(neighbors, New2DPoint(x, y))
+			}
+		}
+	}
+
+	return neighbors
 }
 
 func (point *Point) String() string {

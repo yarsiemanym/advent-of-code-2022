@@ -2,7 +2,7 @@ package common
 
 import "testing"
 
-func Test_Peek_LenLessThanMax(t *testing.T) {
+func Test_String_Peek_LenLessThanMax(t *testing.T) {
 	text := "1234567890"
 	result := Peek(text, 20)
 
@@ -11,7 +11,7 @@ func Test_Peek_LenLessThanMax(t *testing.T) {
 	}
 }
 
-func Test_Peek_LenEqualToMax(t *testing.T) {
+func Test_String_Peek_LenEqualToMax(t *testing.T) {
 	text := "1234567890"
 	result := Peek(text, 10)
 
@@ -20,7 +20,7 @@ func Test_Peek_LenEqualToMax(t *testing.T) {
 	}
 }
 
-func Test_Peek_LenEqualToGreaterThanMax(t *testing.T) {
+func Test_String_Peek_LenEqualToGreaterThanMax(t *testing.T) {
 	text := "1234567890"
 	expected := "12345..."
 	result := Peek(text, 5)
@@ -30,7 +30,7 @@ func Test_Peek_LenEqualToGreaterThanMax(t *testing.T) {
 	}
 }
 
-func Test_Split_NoDelimiters(t *testing.T) {
+func Test_String_Split_NoDelimiters(t *testing.T) {
 	text := "Line1"
 	tokens := Split(text, "\n")
 
@@ -47,7 +47,7 @@ func Test_Split_NoDelimiters(t *testing.T) {
 	}
 }
 
-func Test_Split_WithDelimiters(t *testing.T) {
+func Test_String_Split_WithDelimiters(t *testing.T) {
 	text := "Line1\nLine2"
 	tokens := Split(text, "\n")
 

@@ -2,7 +2,7 @@ package common
 
 import "testing"
 
-func Test_stack_Push_Empty(t *testing.T) {
+func Test_Stack_Push_Empty(t *testing.T) {
 	stack := &Stack{
 		elements: []interface{}{},
 		size:     0,
@@ -23,7 +23,7 @@ func Test_stack_Push_Empty(t *testing.T) {
 	}
 }
 
-func Test_stack_Push_NotEmpty(t *testing.T) {
+func Test_Stack_Push_NotEmpty(t *testing.T) {
 	stack := &Stack{
 		elements: []interface{}{4},
 		size:     1,
@@ -48,7 +48,7 @@ func Test_stack_Push_NotEmpty(t *testing.T) {
 	}
 }
 
-func Test_stack_Pop_Empty(t *testing.T) {
+func Test_Stack_Pop_Empty(t *testing.T) {
 	stack := &Stack{
 		elements: []interface{}{},
 		size:     0,
@@ -69,7 +69,7 @@ func Test_stack_Pop_Empty(t *testing.T) {
 	}
 }
 
-func Test_stack_Pop_NotEmpty(t *testing.T) {
+func Test_Stack_Pop_NotEmpty(t *testing.T) {
 	stack := &Stack{
 		elements: []interface{}{4},
 		size:     1,
@@ -92,7 +92,7 @@ func Test_stack_Pop_NotEmpty(t *testing.T) {
 	}
 }
 
-func Test_stack_Peek_Empty(t *testing.T) {
+func Test_Stack_Peek_Empty(t *testing.T) {
 	stack := &Stack{
 		elements: []interface{}{},
 		size:     0,
@@ -113,7 +113,7 @@ func Test_stack_Peek_Empty(t *testing.T) {
 	}
 }
 
-func Test_stack_Peek_NotEmpty(t *testing.T) {
+func Test_Stack_Peek_NotEmpty(t *testing.T) {
 	stack := &Stack{
 		elements: []interface{}{4},
 		size:     1,
