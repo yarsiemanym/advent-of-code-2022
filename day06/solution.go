@@ -1,6 +1,8 @@
 package day06
 
 import (
+	"strconv"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yarsiemanym/advent-of-code-2022/common"
@@ -8,30 +10,32 @@ import (
 
 func Solve(puzzle *common.Puzzle) common.Answer {
 
-	// TODO: Parse input file.
+	buffer := &buffer{
+		DataStream: common.ReadFile(puzzle.InputFile),
+	}
 
 	return common.Answer{
 		Year:  puzzle.Year,
 		Day:   puzzle.Day,
-		Part1: solvePart1(),
-		Part2: solvePart2(),
+		Part1: solvePart1(buffer),
+		Part2: solvePart2(buffer),
 	}
 }
 
-func solvePart1() string {
+func solvePart1(buffer *buffer) string {
 	log.Debug("Solving part 1.")
 
-	// TODO: Solve part 1
+	position := buffer.StartOfPacket()
 
 	log.Debug("Part 1 solved.")
-	return "Not Implemented"
+	return strconv.Itoa(position)
 }
 
-func solvePart2() string {
+func solvePart2(buffer *buffer) string {
 	log.Debug("Solving part 2.")
 
-	// TODO: Solve part 2
+	position := buffer.StartOfMessage()
 
 	log.Debug("Part 2 solved.")
-	return "Not Implemented"
+	return strconv.Itoa(position)
 }
