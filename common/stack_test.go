@@ -115,8 +115,8 @@ func Test_Stack_Peek_Empty(t *testing.T) {
 
 func Test_Stack_Peek_NotEmpty(t *testing.T) {
 	stack := &Stack{
-		elements: []interface{}{4},
-		size:     1,
+		elements: []interface{}{3, 4},
+		size:     2,
 	}
 
 	value := stack.Peek()
@@ -127,11 +127,11 @@ func Test_Stack_Peek_NotEmpty(t *testing.T) {
 		t.Errorf("Expected 4 but got %v.", value.(int))
 	}
 
-	if stack.size != 1 {
-		t.Errorf("Expected 0 but got %v.", stack.size)
+	if stack.size != 2 {
+		t.Errorf("Expected 2 but got %v.", stack.size)
 	}
 
-	if len(stack.elements) != 1 {
-		t.Errorf("Expected 0 but got %v.", len(stack.elements))
+	if len(stack.elements) != 2 {
+		t.Errorf("Expected 4 but got %v.", len(stack.elements))
 	}
 }
