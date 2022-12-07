@@ -65,17 +65,13 @@ func solvePart2(lines []string) string {
 
 func parseTerminalOutput(lines []string) *directory {
 
-	var root *directory = NewDirectory("/", nil)
-	var cwd *directory = root
-
-	log.Debug("Processing command \"$ cd /\".")
-	log.Debug("Changing directory.")
-	log.Debugf("Current Working Directory is \"%s\".", cwd.Name)
+	root := NewDirectory("/", nil)
+	var cwd *directory = nil
 
 	commandRegexp := regexp.MustCompile(`^\$ (\S*)( \S*)?$`)
 	outputRegexp := regexp.MustCompile(`^(\d*|dir) ([\S\.]*)$`)
 
-	for index := 1; index < len(lines); index++ {
+	for index := 0; index < len(lines); index++ {
 		line := lines[index]
 
 		if line == "" {
@@ -102,6 +98,7 @@ func parseTerminalOutput(lines []string) *directory {
 				cwd = cwd.Parent
 			} else {
 				var targetDirectory *directory = nil
+
 				for _, subdirectory := range cwd.Subdirectories {
 					if subdirectory.Name == parameter {
 						targetDirectory = subdirectory
@@ -144,6 +141,7 @@ func parseTerminalOutput(lines []string) *directory {
 					break
 				}
 			}
+
 			index--
 		default:
 			log.Panicf("Unsupported command \"%s\".", command)
