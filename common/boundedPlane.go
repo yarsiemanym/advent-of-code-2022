@@ -160,3 +160,7 @@ func (plane *BoundedPlane) GetAllPoints() []*Point {
 
 	return points
 }
+
+func (plane *BoundedPlane) IsEdge(point *Point) bool {
+	return point.x == plane.span.start.x || point.y == plane.span.start.y || point.x == plane.span.end.x || point.y == plane.span.end.y
+}
