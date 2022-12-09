@@ -11,15 +11,15 @@ type State interface {
 type HeuristicFunction func(current State, goal State) int
 type PossibleNextStatesFunction func(current State) []State
 
-type AStartSearch struct {
+type AStarSearch struct {
 	start     State
 	goal      State
 	heuristic HeuristicFunction
 	next      PossibleNextStatesFunction
 }
 
-func NewAStarSearch(start State, goal State, heuristic HeuristicFunction, next PossibleNextStatesFunction) *AStartSearch {
-	return &AStartSearch{
+func NewAStarSearch(start State, goal State, heuristic HeuristicFunction, next PossibleNextStatesFunction) *AStarSearch {
+	return &AStarSearch{
 		start:     start,
 		goal:      goal,
 		heuristic: heuristic,
@@ -27,7 +27,7 @@ func NewAStarSearch(start State, goal State, heuristic HeuristicFunction, next P
 	}
 }
 
-func (search *AStartSearch) Search() []State {
+func (search *AStarSearch) Search() []State {
 	cameFrom := map[State]State{}
 	costSoFar := map[State]int{}
 
