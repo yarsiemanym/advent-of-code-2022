@@ -91,10 +91,10 @@ func executeMotions(knots []*common.Point, motions []*motion) int {
 					}
 				}
 			}
+		}
 
-			for knotIndex := 0; knotIndex < len(knots); knotIndex++ {
-				log.Debugf("knots[%d] = %s", knotIndex, knots[knotIndex])
-			}
+		for knotIndex := 0; knotIndex < len(knots); knotIndex++ {
+			log.Debugf("knots[%d] = %s", knotIndex, knots[knotIndex])
 		}
 	}
 
