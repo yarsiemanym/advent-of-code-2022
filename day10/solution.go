@@ -38,7 +38,7 @@ func solvePart2(instructions []string) string {
 	log.Debug("Solving part 2.")
 
 	crt := NewCRT()
-	cpu := NewCPU(drawPixelCallback(crt))
+	cpu := NewCPU(crtCallback(crt))
 
 	cpu.ExecuteInstructions(instructions)
 	output := ToVT100(crt.Render())
@@ -47,7 +47,7 @@ func solvePart2(instructions []string) string {
 	return output
 }
 
-func drawPixelCallback(crt *crt) cpuCycleCallback {
+func crtCallback(crt *crt) cpuCycleCallback {
 	return func(cycle int, registerX int) {
 		crt.MaybeLightPixel(cycle, registerX)
 	}
