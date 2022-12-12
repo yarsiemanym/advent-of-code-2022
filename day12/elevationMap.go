@@ -18,21 +18,30 @@ func NewHeightMap(height int, width int) *heightMap {
 	}
 }
 
-func (thisHeightMap *heightMap) ShortestPath() []common.Point {
+func (thisHeightMap *heightMap) ShortestPathFromStart() []*common.Point {
+	return thisHeightMap.ShortestPathFrom(thisHeightMap.start)
+}
+
+func (thisHeightMap *heightMap) ShortestPathFrom(start *common.Point) []*common.Point {
 	startingState := &heightMapState{
-		point: *thisHeightMap.start,
+		point: start,
 		plane: thisHeightMap.plane,
 	}
 
 	endState := &heightMapState{
-		point: *thisHeightMap.end,
+		point: thisHeightMap.end,
 		plane: thisHeightMap.plane,
 	}
 
 	ceiling := (thisHeightMap.plane.Span().End().Y() - thisHeightMap.plane.Span().Start().Y() + 1) * (thisHeightMap.plane.Span().End().X() - thisHeightMap.plane.Span().Start().X() + 1)
 	aStar := common.NewAStarSearch(startingState, endState, heuristicFunction, possibleNextStatesFunction, ceiling)
 	states := aStar.Search()
-	points := make([]common.Point, len(states))
+
+	if states == nil {
+		return nil
+	}
+
+	points := make([]*common.Point, len(states))
 
 	for index, state := range states {
 		points[index] = state.(*heightMapState).Point()
@@ -77,7 +86,7 @@ func parseHeightMap(text string) *heightMap {
  *******************/
 
 type heightMapState struct {
-	point common.Point
+	point *common.Point
 	plane *common.BoundedPlane
 }
 
@@ -89,17 +98,17 @@ func (state *heightMapState) Key() string {
 	return state.point.String()
 }
 
-func (state *heightMapState) Point() common.Point {
+func (state *heightMapState) Point() *common.Point {
 	return state.point
 }
 
 func heuristicFunction(current common.State, goal common.State) int {
-	return current.(*heightMapState).point.ManhattanDistance(&goal.(*heightMapState).point)
+	return current.(*heightMapState).point.ManhattanDistance(goal.(*heightMapState).point)
 }
 
 func possibleNextStatesFunction(current common.State) []common.State {
 	state := current.(*heightMapState)
-	here := &state.point
+	here := state.point
 
 	log.Debugf("Determine next steps from %s.", here)
 
@@ -113,7 +122,7 @@ func possibleNextStatesFunction(current common.State) []common.State {
 		if neighborHeight <= currentHeight+1 {
 			log.Debugf("Neighbor %s is has potential.", neighbor)
 			nextState := &heightMapState{
-				point: *neighbor,
+				point: neighbor,
 				plane: state.plane,
 			}
 

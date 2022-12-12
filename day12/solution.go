@@ -1,6 +1,7 @@
 package day12
 
 import (
+	"math"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -23,7 +24,7 @@ func Solve(puzzle *common.Puzzle) common.Answer {
 func solvePart1(heightMap *heightMap) string {
 	log.Debug("Solving part 1.")
 
-	path := heightMap.ShortestPath()
+	path := heightMap.ShortestPathFromStart()
 	steps := len(path) - 1
 
 	log.Debug("Part 1 solved.")
@@ -33,8 +34,28 @@ func solvePart1(heightMap *heightMap) string {
 func solvePart2(heightMap *heightMap) string {
 	log.Debug("Solving part 2.")
 
-	// TODO
+	fewestSteps := math.MaxInt
+
+	for _, point := range heightMap.plane.GetAllPoints() {
+		height := heightMap.plane.GetValueAt(point).(rune)
+
+		if height == 'a' {
+			path := heightMap.ShortestPathFrom(point)
+
+			if path == nil {
+				continue
+			}
+
+			steps := len(path) - 1
+
+			if steps < fewestSteps {
+				fewestSteps = steps
+				log.Debugf("New starting point found: %s", point)
+				log.Debugf("fewestSteps = %d", fewestSteps)
+			}
+		}
+	}
 
 	log.Debug("Part 2 solved.")
-	return "Not Implemented"
+	return strconv.Itoa(fewestSteps)
 }

@@ -99,6 +99,11 @@ func (search *AStarSearch) Search() []State {
 		here = allStates[cameFrom[here.Key()]]
 	}
 
+	if path[0].Key() != search.start.Key() || path[len(path)-1].Key() != search.goal.Key() {
+		log.Debug("Goal couldn't be reached.")
+		return nil
+	}
+
 	return path
 }
 
