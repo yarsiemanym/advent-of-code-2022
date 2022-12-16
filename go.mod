@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/ahrtr/gocontainer v0.3.0
-	github.com/davecgh/go-spew v1.1.1
 	github.com/mitchellh/go-wordwrap v1.0.1
 	github.com/sirupsen/logrus v1.9.0
 )
