@@ -13,50 +13,48 @@ func Test_Sensor_FindFrontier_1(t *testing.T) {
 	}
 
 	/*
-				 F
-			    FBF
-			   F#S#F
-			    F#F
-				 F
-
-		(3,1) (2,2) (4,2) (1,3) (5,3) (2,4) (4,4) (3,5)
+			 F
+		    FBF
+		   F#S#F
+		    F#F
+			 F
 	*/
 
-	frontier := sensor.Frontier()
+	edges := sensor.Frontier()
 
-	if len(frontier) != 8 {
-		t.Errorf("Expected 8 but got %d.", len(frontier))
-	} else if frontier[0].X() != 3 {
-		t.Errorf("Expected 3 but got %d.", frontier[0].X())
-	} else if frontier[0].Y() != 1 {
-		t.Errorf("Expected 1 but got %d.", frontier[0].Y())
-	} else if frontier[1].X() != 2 {
-		t.Errorf("Expected 2 but got %d.", frontier[1].X())
-	} else if frontier[1].Y() != 2 {
-		t.Errorf("Expected 2 but got %d.", frontier[1].Y())
-	} else if frontier[2].X() != 4 {
-		t.Errorf("Expected 4 but got %d.", frontier[2].X())
-	} else if frontier[2].Y() != 2 {
-		t.Errorf("Expected 2 but got %d.", frontier[2].Y())
-	} else if frontier[3].X() != 1 {
-		t.Errorf("Expected 1 but got %d.", frontier[3].X())
-	} else if frontier[3].Y() != 3 {
-		t.Errorf("Expected 3 but got %d.", frontier[3].Y())
-	} else if frontier[4].X() != 5 {
-		t.Errorf("Expected 5 but got %d.", frontier[4].X())
-	} else if frontier[4].Y() != 3 {
-		t.Errorf("Expected 3 but got %d.", frontier[4].Y())
-	} else if frontier[5].X() != 2 {
-		t.Errorf("Expected 2 but got %d.", frontier[5].X())
-	} else if frontier[5].Y() != 4 {
-		t.Errorf("Expected 4 but got %d.", frontier[5].Y())
-	} else if frontier[6].X() != 4 {
-		t.Errorf("Expected 4 but got %d.", frontier[6].X())
-	} else if frontier[6].Y() != 4 {
-		t.Errorf("Expected 4 but got %d.", frontier[6].Y())
-	} else if frontier[7].X() != 3 {
-		t.Errorf("Expected 3 but got %d.", frontier[7].X())
-	} else if frontier[7].Y() != 5 {
-		t.Errorf("Expected 5 but got %d.", frontier[7].Y())
+	if len(edges) != 4 {
+		t.Errorf("Expected 4 but got %d.", len(edges))
+	} else if edges[0].Start().X() != 1 {
+		t.Errorf("Expected 3 but got %d.", edges[0].Start().X())
+	} else if edges[0].Start().Y() != 3 {
+		t.Errorf("Expected 1 but got %d.", edges[0].Start().Y())
+	} else if edges[0].End().X() != 3 {
+		t.Errorf("Expected 3 but got %d.", edges[0].End().X())
+	} else if edges[0].End().Y() != 1 {
+		t.Errorf("Expected 1 but got %d.", edges[0].End().Y())
+	} else if edges[1].Start().X() != 3 {
+		t.Errorf("Expected 3 but got %d.", edges[1].Start().X())
+	} else if edges[1].Start().Y() != 1 {
+		t.Errorf("Expected 1 but got %d.", edges[1].Start().Y())
+	} else if edges[1].End().X() != 5 {
+		t.Errorf("Expected 5 but got %d.", edges[1].End().X())
+	} else if edges[1].End().Y() != 3 {
+		t.Errorf("Expected 3 but got %d.", edges[1].End().Y())
+	} else if edges[2].Start().X() != 5 {
+		t.Errorf("Expected 5 but got %d.", edges[2].Start().X())
+	} else if edges[2].Start().Y() != 3 {
+		t.Errorf("Expected 3 but got %d.", edges[2].Start().Y())
+	} else if edges[2].End().X() != 3 {
+		t.Errorf("Expected 3 but got %d.", edges[2].End().X())
+	} else if edges[2].End().Y() != 5 {
+		t.Errorf("Expected 5 but got %d.", edges[2].End().Y())
+	} else if edges[3].Start().X() != 3 {
+		t.Errorf("Expected 3 but got %d.", edges[3].Start().X())
+	} else if edges[3].Start().Y() != 5 {
+		t.Errorf("Expected 5 but got %d.", edges[3].Start().Y())
+	} else if edges[3].End().X() != 1 {
+		t.Errorf("Expected 1 but got %d.", edges[3].End().X())
+	} else if edges[3].End().Y() != 3 {
+		t.Errorf("Expected 3 but got %d.", edges[3].End().Y())
 	}
 }
