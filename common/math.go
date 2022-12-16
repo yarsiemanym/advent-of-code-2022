@@ -118,3 +118,15 @@ func GreatestCommonFactor(a int, b int) int {
 func PowInt(base int, exponent int) int {
 	return int(math.Pow(float64(base), float64(exponent)))
 }
+
+func Sign(number int) int {
+	if number < 0 {
+		return -1
+	}
+
+	if number > 0 {
+		return 1
+	}
+
+	return 0
+}
