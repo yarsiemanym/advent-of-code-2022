@@ -1,6 +1,7 @@
 package day15
 
 import (
+	"log"
 	"strconv"
 	"strings"
 
@@ -43,26 +44,46 @@ func (thisSensorMap *sensorMap) Inspect() int {
 }
 
 func (thisSensorMap *sensorMap) FindTuningFrequency() uint64 {
-	frequency := uint64(0)
+	candidates := thisSensorMap.FindUncoveredPoints()
 
-	for y := 0; y <= thisSensorMap.searchSpace; y++ {
-		for x := 0; x <= thisSensorMap.searchSpace; x++ {
-			point := common.New2DPoint(x, y)
-			isCovered := false
-			for _, sensor := range thisSensorMap.sensors {
-				if sensor.Covers(point) {
-					isCovered = true
-					break
+	if len(candidates) == 0 {
+		log.Panic("No candidates.")
+	} else if len(candidates) != 1 {
+		log.Panicf("Too many candidates: %d", len(candidates))
+	}
+
+	distressBeaconLocation := candidates[0]
+
+	tuningFrequency := (uint64(distressBeaconLocation.X()) * uint64(4000000)) + uint64(distressBeaconLocation.Y())
+	return tuningFrequency
+}
+
+func (thisSensorMap *sensorMap) FindUncoveredPoints() []*common.Point {
+	uncoveredPoints := []*common.Point{}
+
+	for _, thisSensor := range thisSensorMap.sensors {
+		for _, point := range thisSensor.Frontier() {
+			if thisSensorMap.IsInSearchSpace(point) {
+				covered := false
+
+				for _, otherSensor := range thisSensorMap.sensors {
+					if thisSensor != otherSensor && otherSensor.Covers(point) {
+						covered = true
+					}
 				}
-			}
 
-			if !isCovered {
-				frequency = (uint64(point.X()) * uint64(4000000)) + uint64(point.Y())
+				if !covered {
+					uncoveredPoints = common.UnionPointers(uncoveredPoints, []*common.Point{point})
+				}
 			}
 		}
 	}
 
-	return frequency
+	return uncoveredPoints
+}
+
+func (thisSensorMap *sensorMap) IsInSearchSpace(point *common.Point) bool {
+	return point.X() >= 0 && point.X() <= thisSensorMap.searchSpace && point.Y() >= 0 && point.Y() <= thisSensorMap.searchSpace
 }
 
 func parseSensorMap(text string) *sensorMap {
@@ -71,7 +92,6 @@ func parseSensorMap(text string) *sensorMap {
 
 	sensorLines := common.Split(tokens[0], "\n")
 	sensors := []*sensor{}
-	minY, maxY := 0, 0
 
 	for _, line := range sensorLines {
 		result := parseSensor(line)
@@ -82,9 +102,6 @@ func parseSensorMap(text string) *sensorMap {
 
 		thisSensor := result.(*sensor)
 		sensors = append(sensors, thisSensor)
-
-		minY = common.MinInt(minY, thisSensor.position.Y(), thisSensor.closestBeacon.Y())
-		maxY = common.MaxInt(maxY, thisSensor.position.Y(), thisSensor.closestBeacon.Y())
 	}
 
 	inspectionY, err := strconv.Atoi(strings.Trim(tokens[1], " \n"))

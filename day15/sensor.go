@@ -20,6 +20,29 @@ func (thisSensor *sensor) Covers(point *common.Point) bool {
 	return thisSensor.position.ManhattanDistance(point) <= thisSensor.CoverageRadius()
 }
 
+func (thisSensor *sensor) Frontier() []*common.Point {
+	frontier := []*common.Point{}
+	coverageRadius := thisSensor.CoverageRadius()
+
+	topPoint := common.New2DPoint(thisSensor.position.X(), thisSensor.position.Y()-coverageRadius-1)
+	frontier = append(frontier, topPoint)
+
+	for y := thisSensor.position.Y() - coverageRadius; y <= thisSensor.position.Y()+coverageRadius; y++ {
+		xDistance := coverageRadius - common.AbsInt(thisSensor.position.Y()-y)
+
+		leftPoint := common.New2DPoint(thisSensor.position.X()-xDistance-1, y)
+		frontier = append(frontier, leftPoint)
+
+		rightPoint := common.New2DPoint(thisSensor.position.X()+xDistance+1, y)
+		frontier = append(frontier, rightPoint)
+	}
+
+	bottomPoint := common.New2DPoint(thisSensor.position.X(), thisSensor.position.Y()+coverageRadius+1)
+	frontier = append(frontier, bottomPoint)
+
+	return frontier
+}
+
 func parseSensor(text string) any {
 
 	if text == "" {
