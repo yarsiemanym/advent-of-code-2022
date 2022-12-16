@@ -10,8 +10,8 @@ import (
 
 func Solve(puzzle *common.Puzzle) common.Answer {
 
-	cave1 := parseCave(common.ReadFile(puzzle.InputFile))
-	cave2 := parseCave(common.ReadFile(puzzle.InputFile))
+	cave1 := parseCave(common.ReadFile(puzzle.InputFile), true)
+	cave2 := parseCave(common.ReadFile(puzzle.InputFile), false)
 
 	return common.Answer{
 		Year:  puzzle.Year,
@@ -33,8 +33,8 @@ func solvePart1(cave *cave) string {
 func solvePart2(cave *cave) string {
 	log.Debug("Solving part 2.")
 
-	// TODO
+	count := cave.FillWithSand()
 
 	log.Debug("Part 2 solved.")
-	return "Not Implemented"
+	return strconv.Itoa(count)
 }

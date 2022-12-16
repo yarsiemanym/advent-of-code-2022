@@ -11,6 +11,7 @@ import (
 const (
 	empty   = '.'
 	rock    = '#'
+	abyss   = '~'
 	opening = '+'
 	sand    = 'O'
 )
@@ -19,9 +20,11 @@ var source = common.New2DPoint(500, 0)
 
 type cave struct {
 	pointMap map[common.Point]rune
+	top      int
 	bottom   int
 	left     int
 	right    int
+	abyss    bool
 }
 
 func (thisCave *cave) FillWithSand() int {
@@ -34,21 +37,19 @@ func (thisCave *cave) FillWithSand() int {
 		keepGoing = thisCave.DropUnitOfSand()
 	}
 
-	return count - 1
+	if thisCave.abyss {
+		count--
+	}
+
+	return count
 }
 
 func (thisCave *cave) DropUnitOfSand() bool {
-	current := common.New2DPoint(500, 0)
+	current := source
 	atRest := false
-	flowingIntoTheAbyss := false
+	stop := false
 
-	for !atRest && !flowingIntoTheAbyss {
-
-		if current.Y() >= thisCave.bottom {
-			log.Debug("Falling into the abyss.")
-			flowingIntoTheAbyss = true
-			continue
-		}
+	for !atRest && !stop {
 
 		next := common.New2DPoint(current.X(), current.Y()+1)
 		if thisCave.IsEmptyAt(next) {
@@ -62,6 +63,10 @@ func (thisCave *cave) DropUnitOfSand() bool {
 			log.Debug("Falling down and to the left.")
 			current = next
 			continue
+		} else if thisCave.ValueAt(next) == abyss {
+			log.Debug("Falling into the abyss.")
+			stop = true
+			continue
 		}
 
 		next = common.New2DPoint(current.X()+1, current.Y()+1)
@@ -71,21 +76,32 @@ func (thisCave *cave) DropUnitOfSand() bool {
 			continue
 		}
 
+		if thisCave.ValueAt(current) == opening {
+			log.Debug("Blocking the source of falling sand.")
+			stop = true
+		}
+
 		thisCave.SettleSandAt(current)
 		atRest = true
 	}
 
-	return !flowingIntoTheAbyss
+	return !stop
 }
 
 func (thisCave *cave) IsEmptyAt(point *common.Point) bool {
-	return thisCave.ValueAt(point) == empty
+	value := thisCave.ValueAt(point)
+	return value == empty || value == opening
+
 }
 
 func (thisCave *cave) ValueAt(point *common.Point) rune {
 	value, exists := thisCave.pointMap[*point]
 
-	if !exists {
+	if thisCave.abyss && point.Y() > thisCave.bottom {
+		return abyss
+	} else if !thisCave.abyss && point.Y() >= thisCave.bottom+2 {
+		return rock
+	} else if !exists {
 		return empty
 	} else {
 		return value
@@ -95,12 +111,20 @@ func (thisCave *cave) ValueAt(point *common.Point) rune {
 func (thisCave *cave) SettleSandAt(point *common.Point) {
 	log.Debugf("Coming to a rest %s.", point)
 	thisCave.pointMap[*point] = sand
+	thisCave.left = common.MinInt(thisCave.left, point.X())
+	thisCave.right = common.MaxInt(thisCave.right, point.X())
 }
 
 func (thisCave *cave) String() string {
 	output := ""
 
-	for y := 0; y <= thisCave.bottom; y++ {
+	bottom := thisCave.bottom
+
+	if !thisCave.abyss {
+		bottom += 2
+	}
+
+	for y := 0; y <= bottom; y++ {
 		for x := thisCave.left; x <= thisCave.right; x++ {
 			point := common.New2DPoint(x, y)
 			value := thisCave.ValueAt(point)
@@ -112,7 +136,7 @@ func (thisCave *cave) String() string {
 	return output
 }
 
-func parseCave(text string) *cave {
+func parseCave(text string, abyss bool) *cave {
 	lines := common.Split(text, "\n")
 	pointMap := map[common.Point]rune{}
 	pointMap[*source] = opening
@@ -152,9 +176,11 @@ func parseCave(text string) *cave {
 
 	return &cave{
 		pointMap: pointMap,
+		top:      0,
 		bottom:   bottom,
 		left:     left,
 		right:    right,
+		abyss:    abyss,
 	}
 }
 
