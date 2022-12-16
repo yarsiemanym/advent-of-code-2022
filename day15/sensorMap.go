@@ -4,8 +4,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/yarsiemanym/advent-of-code-2022/common"
 )
 
@@ -16,7 +14,7 @@ type sensorMap struct {
 }
 
 func (thisSensorMap *sensorMap) Inspect() int {
-	coveredPoints := map[common.Point]int{}
+	coveredPoints := map[int]int{}
 	count := 0
 
 	for _, sensor := range thisSensorMap.sensors {
@@ -27,10 +25,8 @@ func (thisSensorMap *sensorMap) Inspect() int {
 			xDistance := sensor.CoverageRadius() - yDistance
 
 			for x := sensor.position.X() - xDistance; x <= sensor.position.X()+xDistance; x++ {
-				point := common.New2DPoint(x, thisSensorMap.inspectionY)
-
-				if *point != *sensor.closestBeacon {
-					coveredPoints[*point] = coveredPoints[*point] + 1
+				if x != sensor.closestBeacon.X() || thisSensorMap.inspectionY != sensor.closestBeacon.Y() {
+					coveredPoints[x] = coveredPoints[x] + 1
 				}
 			}
 		}
@@ -80,8 +76,6 @@ func (thisSensorMap *sensorMap) FindTuningFrequency() uint64 {
 			break
 		}
 	}
-
-	log.Debugf("distressBeaconLocation = %s", distressBeaconLocation)
 
 	tuningFrequency := (uint64(distressBeaconLocation.X()) * uint64(4000000)) + uint64(distressBeaconLocation.Y())
 	return tuningFrequency
