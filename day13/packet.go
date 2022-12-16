@@ -9,7 +9,6 @@ import (
 )
 
 var intType = reflect.TypeOf(0)
-var sliceType = reflect.TypeOf([]any{})
 
 type packetPair struct {
 	packet1 *packet
