@@ -35,7 +35,7 @@ func NewAStarSearch(start State, goal State, heuristic HeuristicFunction, next P
 }
 
 func (search *AStarSearch) Search() []State {
-	log.Debug("Begin A* search.")
+	log.Trace("Begin A* search.")
 
 	allStates := map[string]State{}
 	cameFrom := map[string]string{}
@@ -52,10 +52,10 @@ func (search *AStarSearch) Search() []State {
 
 	for frontier.Size() > 0 {
 		current := frontier.Poll().(priorityQueueItem).value.(State)
-		log.Debugf("Current state is %s.", current.Key())
+		log.Tracef("Current state is %s.", current.Key())
 
 		if current.Key() == search.goal.Key() {
-			log.Debug("Goal reached!")
+			log.Trace("Goal reached!")
 			break
 		}
 
@@ -64,14 +64,14 @@ func (search *AStarSearch) Search() []State {
 			currentCost, exists := costSoFar[next.Key()]
 
 			if !exists {
-				log.Debug("No cost known yet.")
+				log.Trace("No cost known yet.")
 				currentCost = math.MaxInt
 			}
 
-			log.Debugf("Checking cost of moving to state %s.", next.Key())
+			log.Tracef("Checking cost of moving to state %s.", next.Key())
 
 			newCost := costSoFar[current.Key()] + next.Cost()
-			log.Debugf("newCost = %d", newCost)
+			log.Tracef("newCost = %d", newCost)
 
 			if newCost > search.ceiling {
 				frontier.Remove(priorityQueueItem{
@@ -79,7 +79,7 @@ func (search *AStarSearch) Search() []State {
 					value:    next,
 				})
 			} else if newCost < currentCost {
-				log.Debug("New shortest path found.")
+				log.Trace("New shortest path found.")
 				costSoFar[next.Key()] = newCost
 				cameFrom[next.Key()] = current.Key()
 				frontier.Add(priorityQueueItem{
@@ -100,7 +100,7 @@ func (search *AStarSearch) Search() []State {
 	}
 
 	if path[0].Key() != search.start.Key() || path[len(path)-1].Key() != search.goal.Key() {
-		log.Debug("Goal couldn't be reached.")
+		log.Trace("Goal couldn't be reached.")
 		return nil
 	}
 
