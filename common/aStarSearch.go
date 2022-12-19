@@ -54,21 +54,16 @@ func (search *AStarSearch) Search() []State {
 		current := frontier.Poll().(priorityQueueItem).value.(State)
 		log.Tracef("Current state is %s.", current.Key())
 
-		if current.Key() == search.goal.Key() {
-			log.Trace("Goal reached!")
-			break
-		}
-
 		for _, next := range search.next(current) {
 			allStates[next.Key()] = next
 			currentCost, exists := costSoFar[next.Key()]
+
+			log.Tracef("Checking cost of moving to state %s.", next.Key())
 
 			if !exists {
 				log.Trace("No cost known yet.")
 				currentCost = math.MaxInt
 			}
-
-			log.Tracef("Checking cost of moving to state %s.", next.Key())
 
 			newCost := costSoFar[current.Key()] + next.Cost()
 			log.Tracef("newCost = %d", newCost)
@@ -79,7 +74,7 @@ func (search *AStarSearch) Search() []State {
 					value:    next,
 				})
 			} else if newCost < currentCost {
-				log.Trace("New shortest path found.")
+				log.Tracef("New shortest path to %s found.", next.Key())
 				costSoFar[next.Key()] = newCost
 				cameFrom[next.Key()] = current.Key()
 				frontier.Add(priorityQueueItem{
@@ -87,7 +82,6 @@ func (search *AStarSearch) Search() []State {
 					value:    next,
 				})
 			}
-
 		}
 	}
 
@@ -97,11 +91,6 @@ func (search *AStarSearch) Search() []State {
 	for here != nil {
 		path = append([]State{here}, path...)
 		here = allStates[cameFrom[here.Key()]]
-	}
-
-	if path[0].Key() != search.start.Key() || path[len(path)-1].Key() != search.goal.Key() {
-		log.Trace("Goal couldn't be reached.")
-		return nil
 	}
 
 	return path
