@@ -1,6 +1,7 @@
 package day16
 
 import (
+	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -87,7 +88,17 @@ func findImportantValves(valves map[string]*valve) []string {
 	return importantValves
 }
 
+var cache = map[string][]string{}
+
 func findPath(startValveLabel string, goalValveLabel string, valves map[string]*valve) []string {
+
+	cacheKey := fmt.Sprintf("%s %s", startValveLabel, goalValveLabel)
+	cachedValue, exists := cache[cacheKey]
+
+	if exists {
+		return cachedValue
+	}
+
 	start := &valveState{
 		label:  startValveLabel,
 		valves: valves,
@@ -105,6 +116,8 @@ func findPath(startValveLabel string, goalValveLabel string, valves map[string]*
 	for _, state := range states[1:] {
 		path = append(path, state.(*valveState).label)
 	}
+
+	cache[cacheKey] = path
 
 	return path
 }
