@@ -9,9 +9,8 @@ import (
 
 type valve struct {
 	label     string
+	index     int
 	flowRate  int
-	isOpen    bool
-	isVisited bool
 	tunnelsTo []string
 }
 
@@ -33,7 +32,6 @@ func parseValve(text string) any {
 	return &valve{
 		label:     label,
 		flowRate:  flowRate,
-		isOpen:    false,
 		tunnelsTo: tunnelsTo,
 	}
 }

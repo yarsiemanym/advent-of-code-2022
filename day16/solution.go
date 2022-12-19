@@ -1,11 +1,8 @@
 package day16
 
 import (
-	"fmt"
-	"math"
 	"strconv"
 
-	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yarsiemanym/advent-of-code-2022/common"
@@ -15,9 +12,10 @@ func Solve(puzzle *common.Puzzle) common.Answer {
 
 	results := common.ParseFile(puzzle.InputFile, "\n", parseValve)
 
-	valves := map[string]valve{}
-	for _, result := range results {
-		valve := *result.(*valve)
+	valves := map[string]*valve{}
+	for index, result := range results {
+		valve := result.(*valve)
+		valve.index = index
 		valves[valve.label] = valve
 	}
 
@@ -29,47 +27,18 @@ func Solve(puzzle *common.Puzzle) common.Answer {
 	}
 }
 
-func solvePart1(valves map[string]valve) string {
+func solvePart1(valves map[string]*valve) string {
 	log.Debug("Solving part 1.")
 
-	valves["AA"] = valve{
-		label:     valves["AA"].label,
-		tunnelsTo: valves["AA"].tunnelsTo,
-		flowRate:  valves["AA"].flowRate,
-		isOpen:    valves["AA"].isOpen,
-		isVisited: true,
-	}
-
-	start := &simulationState{
-		label:             "AA",
-		time:              0,
-		timeLimit:         30,
-		action:            "start",
-		pressurePerMinute: 0,
-		totalPressure:     0,
-		valves:            valves,
-	}
-
-	goal := &simulationState{
-		label:         "*",
-		time:          30,
-		action:        "stop",
-		totalPressure: 0,
-	}
-
-	ceiling := math.MaxInt
-	search := common.NewAStarSearch(start, goal, heuristicFunction, possibleNextStatesFunction, ceiling)
-	states := search.Search()
-	finalState := states[len(states)-2].(*simulationState)
-	pressure := finalState.totalPressure
-
-	spew.Dump(states)
+	importantValves := findImportantValves(valves)
+	valveState := uint64(0)
+	highestPressure := findHighestPressure("AA", 0, 30, importantValves, valves, valveState)
 
 	log.Debug("Part 1 solved.")
-	return strconv.Itoa(pressure)
+	return strconv.Itoa(highestPressure)
 }
 
-func solvePart2(map[string]valve) string {
+func solvePart2(valves map[string]*valve) string {
 	log.Debug("Solving part 2.")
 
 	// TODO
@@ -78,169 +47,96 @@ func solvePart2(map[string]valve) string {
 	return "Not Implemented"
 }
 
-type simulationState struct {
-	label             string
-	time              int
-	timeLimit         int
-	action            string
-	pressurePerMinute int
-	totalPressure     int
-	valves            map[string]valve
-}
+func findHighestPressure(fromLabel string, pressure int, timeLimit int, importantValveLabels []string, allValves map[string]*valve, valveState uint64) int {
+	log.Debug("BEGIN visit()")
+	log.Debugf("fromLabel = %s", fromLabel)
+	log.Debugf("pressure = %d", pressure)
+	log.Debugf("timeLimit = %d", timeLimit)
 
-func (thisState *simulationState) Clone() *simulationState {
-	clonedValves := map[string]valve{}
-
-	for label, valve := range thisState.valves {
-		clonedValves[label] = valve
+	if timeLimit <= 0 {
+		return pressure
 	}
 
-	return &simulationState{
-		label:             thisState.label,
-		valves:            clonedValves,
-		time:              thisState.time,
-		timeLimit:         thisState.timeLimit,
-		action:            thisState.action,
-		pressurePerMinute: thisState.pressurePerMinute,
-		totalPressure:     thisState.totalPressure,
-	}
-}
-
-func (thisState *simulationState) TimeRemaining() int {
-	return thisState.timeLimit - thisState.time
-}
-
-func (thisState *simulationState) Valve() valve {
-	return thisState.valves[thisState.label]
-}
-
-func (thisState *simulationState) SumOfUnopenedFlowRate() int {
-	sumOfUnopenedFlowRate := 0
-
-	for _, valve := range thisState.valves {
-		if !valve.isOpen {
-			sumOfUnopenedFlowRate += valve.flowRate
+	highestPressure := pressure
+	for _, toLabel := range importantValveLabels {
+		toValve := allValves[toLabel]
+		valveMask := uint64(1) << toValve.index
+		if valveState&valveMask == 0 {
+			path := findPath(fromLabel, toLabel, allValves)
+			newValveState := valveState | valveMask
+			timeRemaining := timeLimit - len(path) - 1
+			newPressure := findHighestPressure(toLabel, (timeRemaining*toValve.flowRate)+pressure, timeRemaining, importantValveLabels, allValves, newValveState)
+			highestPressure = common.MaxInt(highestPressure, newPressure)
 		}
 	}
 
-	return sumOfUnopenedFlowRate
+	return highestPressure
 }
 
-func (thisState *simulationState) String() string {
-	return fmt.Sprintf("(%d %s %s %d)", thisState.time, thisState.action, thisState.label, thisState.totalPressure)
-}
+func findImportantValves(valves map[string]*valve) []string {
+	importantValves := []string{}
 
-func (thisState *simulationState) Cost() int {
-	thisValve := thisState.Valve()
-	cost := 0
-
-	switch thisState.action {
-	case "open":
-		cost += (thisState.SumOfUnopenedFlowRate() * thisState.TimeRemaining()) - (thisValve.flowRate * thisState.time)
-	case "move":
-		cost += thisState.SumOfUnopenedFlowRate() * thisState.TimeRemaining()
-	case "idle":
-
-	default:
-
+	for label, valve := range valves {
+		if valve.flowRate > 0 {
+			importantValves = append(importantValves, label)
+		}
 	}
 
-	return cost
+	log.Debugf("importantValves = %s", importantValves)
+
+	return importantValves
 }
 
-func (thisState *simulationState) Key() string {
-	return thisState.String()
+func findPath(startValveLabel string, goalValveLabel string, valves map[string]*valve) []string {
+	start := &valveState{
+		label:  startValveLabel,
+		valves: valves,
+	}
+
+	goal := &valveState{
+		label:  goalValveLabel,
+		valves: valves,
+	}
+
+	search := common.NewAStarSearch(start, goal, heuristicFunction, possibleNextStatesFunction, len(valves))
+	states := search.Search()
+	path := []string{}
+
+	for _, state := range states[1:] {
+		path = append(path, state.(*valveState).label)
+	}
+
+	return path
+}
+
+type valveState struct {
+	label  string
+	valves map[string]*valve
+}
+
+func (thisState *valveState) Cost() int {
+	return 1
+}
+
+func (thisState *valveState) Key() string {
+	return thisState.label
 }
 
 func heuristicFunction(current common.State, goal common.State) int {
-	/* currentState := current.(*simulationState)
-	currentValve := currentState.Valve()
-
-	if currentValve.isVisited {
-		return currentState.HighestUnopenedFlowRate() * currentState.time
-	} else {
-		return 0
-	} */
-
 	return 0
 }
 
 func possibleNextStatesFunction(current common.State) []common.State {
-	currentState := current.(*simulationState)
-
-	log.Debugf("Current state is %s.", currentState)
-	log.Debugf("Pressure per minute is %d", currentState.pressurePerMinute)
-	log.Debugf("Total pressure is %d.", currentState.totalPressure)
-	log.Debugf("Constructing possible next states from %s.", current)
-
+	currentState := current.(*valveState)
 	currentValve := currentState.valves[currentState.label]
 	nextStates := []common.State{}
 
-	if currentState.time < currentState.timeLimit {
-
-		allValvesAreOpen := true
-
-		for _, valve := range currentState.valves {
-			if valve.flowRate > 0 && !valve.isOpen {
-				allValvesAreOpen = false
-			}
+	for _, adjacentLabel := range currentValve.tunnelsTo {
+		nextState := &valveState{
+			label:  adjacentLabel,
+			valves: currentState.valves,
 		}
-
-		// All valves are on. Sit idle till time is up.
-		if allValvesAreOpen {
-			nextState := currentState.Clone()
-			nextState.time += 1
-			nextState.action = "idle"
-			nextState.totalPressure += nextState.pressurePerMinute
-			nextStates = append(nextStates, nextState)
-			log.Debugf("%s -> %s costs %d", currentState, nextState, nextState.Cost())
-		}
-
-		// Open current valve
-		if currentValve.flowRate > 0 && !currentValve.isOpen {
-			nextState := currentState.Clone()
-			nextState.valves[currentValve.label] = valve{
-				label:     currentValve.label,
-				tunnelsTo: currentValve.tunnelsTo,
-				flowRate:  currentValve.flowRate,
-				isOpen:    true,
-				isVisited: currentValve.isVisited,
-			}
-			nextState.time += 1
-			nextState.action = "open"
-			nextState.totalPressure += nextState.pressurePerMinute
-			nextState.pressurePerMinute += currentValve.flowRate
-			nextStates = append(nextStates, nextState)
-			log.Debugf("%s -> %s costs %d", currentState, nextState, nextState.Cost())
-		}
-
-		// Move to an adjacent valve
-		for _, adjacentLabel := range currentValve.tunnelsTo {
-			adjacentValve := currentState.valves[adjacentLabel]
-
-			nextState := currentState.Clone()
-			nextState.valves[adjacentLabel] = valve{
-				label:     adjacentValve.label,
-				tunnelsTo: adjacentValve.tunnelsTo,
-				flowRate:  adjacentValve.flowRate,
-				isOpen:    adjacentValve.isOpen,
-				isVisited: true,
-			}
-			nextState.time += 1
-			nextState.label = adjacentLabel
-			nextState.action = "move"
-			nextState.totalPressure += nextState.pressurePerMinute
-			nextStates = append(nextStates, nextState)
-			log.Debugf("%s -> %s costs %d", currentState, nextState, nextState.Cost())
-		}
-	} else {
-		// Time is up. Stop where you are.
-		nextState := currentState.Clone()
-		nextState.label = "*"
-		nextState.action = "stop"
-		nextState.totalPressure = 0
 		nextStates = append(nextStates, nextState)
-		log.Debugf("%s -> %s costs %d", currentState, nextState, nextState.Cost())
 	}
 
 	return nextStates
