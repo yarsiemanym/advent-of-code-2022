@@ -25,6 +25,7 @@ import (
 	"github.com/yarsiemanym/advent-of-code-2022/day14"
 	"github.com/yarsiemanym/advent-of-code-2022/day15"
 	"github.com/yarsiemanym/advent-of-code-2022/day16"
+	"github.com/yarsiemanym/advent-of-code-2022/day17"
 	"github.com/yarsiemanym/advent-of-code-2022/vt100"
 )
 
@@ -132,6 +133,8 @@ func setupPuzzle() common.Puzzle {
 		puzzle.SetSolution(day15.Solve)
 	case 16:
 		puzzle.SetSolution(day16.Solve)
+	case 17:
+		puzzle.SetSolution(day17.Solve)
 	default:
 		log.Fatalf("Day %d has no solution yet.", puzzle.Day)
 	}
