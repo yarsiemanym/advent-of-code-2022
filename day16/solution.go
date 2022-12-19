@@ -1,7 +1,7 @@
 package day16
 
 import (
-	"fmt"
+	"sort"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -31,9 +31,19 @@ func Solve(puzzle *common.Puzzle) common.Answer {
 func solvePart1(valves map[string]*valve) string {
 	log.Debug("Solving part 1.")
 
+	pressureCache := map[pressureCacheKey]int{}
+	pathCache := map[pathCacheKey][]string{}
 	importantValves := findImportantValves(valves)
-	valveState := uint64(0)
-	highestPressure := findHighestPressure("AA", 0, 30, importantValves, valves, valveState)
+	valveState := 0
+	populatePressureCache("AA", 0, 30, importantValves, valves, valveState, pressureCache, pathCache)
+
+	highestPressure := 0
+
+	for _, pressure := range pressureCache {
+		if pressure > highestPressure {
+			highestPressure = pressure
+		}
+	}
 
 	log.Debug("Part 1 solved.")
 	return strconv.Itoa(highestPressure)
@@ -42,36 +52,84 @@ func solvePart1(valves map[string]*valve) string {
 func solvePart2(valves map[string]*valve) string {
 	log.Debug("Solving part 2.")
 
-	// TODO
+	pressureCache := map[pressureCacheKey]int{}
+	pathCache := map[pathCacheKey][]string{}
+	importantValves := findImportantValves(valves)
+	valveState := 0
+	populatePressureCache("AA", 0, 26, importantValves, valves, valveState, pressureCache, pathCache)
 
-	log.Debug("Part 2 solved.")
-	return "Not Implemented"
-}
+	pressures := map[int]int{}
 
-func findHighestPressure(fromLabel string, pressure int, timeLimit int, importantValveLabels []string, allValves map[string]*valve, valveState uint64) int {
-	log.Debug("BEGIN visit()")
-	log.Debugf("fromLabel = %s", fromLabel)
-	log.Debugf("pressure = %d", pressure)
-	log.Debugf("timeLimit = %d", timeLimit)
+	for key, pressure := range pressureCache {
+		valveState := key.startingValveState
+		highestPressure, exists := pressures[valveState]
 
-	if timeLimit <= 0 {
-		return pressure
-	}
+		if !exists {
+			highestPressure = 0
+		}
 
-	highestPressure := pressure
-	for _, toLabel := range importantValveLabels {
-		toValve := allValves[toLabel]
-		valveMask := uint64(1) << toValve.index
-		if valveState&valveMask == 0 {
-			path := findPath(fromLabel, toLabel, allValves)
-			newValveState := valveState | valveMask
-			timeRemaining := timeLimit - len(path) - 1
-			newPressure := findHighestPressure(toLabel, (timeRemaining*toValve.flowRate)+pressure, timeRemaining, importantValveLabels, allValves, newValveState)
-			highestPressure = common.MaxInt(highestPressure, newPressure)
+		if pressure > highestPressure {
+			pressures[valveState] = pressure
 		}
 	}
 
-	return highestPressure
+	highestPressure := 0
+
+	for thisValveState, thisPressure := range pressures {
+		for otherValveState, otherPressure := range pressures {
+			if thisValveState&otherValveState == 0 && thisPressure+otherPressure > highestPressure {
+				highestPressure = thisPressure + otherPressure
+			}
+		}
+	}
+
+	log.Debug("Part 2 solved.")
+	return strconv.Itoa(highestPressure)
+}
+
+type pressureCacheKey struct {
+	startLabel         string
+	startingPressure   int
+	startingValveState int
+	timeRemaining      int
+}
+
+func populatePressureCache(startLabel string, startingPressure int, timeRemaining int, importantValveLabels []string,
+	allValves map[string]*valve, valveState int, pressureCache map[pressureCacheKey]int, pathCache map[pathCacheKey][]string) {
+
+	cacheKey := pressureCacheKey{
+		startLabel:         startLabel,
+		startingPressure:   startingPressure,
+		timeRemaining:      timeRemaining,
+		startingValveState: valveState,
+	}
+
+	_, exists := pressureCache[cacheKey]
+
+	if exists {
+		return
+	}
+
+	if timeRemaining <= 0 {
+		pressureCache[cacheKey] = startingPressure
+		return
+	}
+
+	highestPressure := startingPressure
+	for index, toLabel := range importantValveLabels {
+		valveMask := 1 << index
+		isOpen := valveState&valveMask != 0
+		if !isOpen {
+			path := findPath(startLabel, toLabel, allValves, pathCache)
+			newValveState := valveState | valveMask
+			newTimeRemaining := timeRemaining - len(path) - 1
+			toValve := allValves[toLabel]
+			populatePressureCache(toLabel, (newTimeRemaining*toValve.flowRate)+startingPressure, newTimeRemaining,
+				importantValveLabels, allValves, newValveState, pressureCache, pathCache)
+		}
+	}
+
+	pressureCache[cacheKey] = highestPressure
 }
 
 func findImportantValves(valves map[string]*valve) []string {
@@ -83,17 +141,23 @@ func findImportantValves(valves map[string]*valve) []string {
 		}
 	}
 
-	log.Debugf("importantValves = %s", importantValves)
-
+	sort.StringSlice.Sort(importantValves)
 	return importantValves
 }
 
-var cache = map[string][]string{}
+type pathCacheKey struct {
+	start string
+	goal  string
+}
 
-func findPath(startValveLabel string, goalValveLabel string, valves map[string]*valve) []string {
+func findPath(startValveLabel string, goalValveLabel string, valves map[string]*valve,
+	pathCache map[pathCacheKey][]string) []string {
 
-	cacheKey := fmt.Sprintf("%s %s", startValveLabel, goalValveLabel)
-	cachedValue, exists := cache[cacheKey]
+	cacheKey := pathCacheKey{
+		start: startValveLabel,
+		goal:  goalValveLabel,
+	}
+	cachedValue, exists := pathCache[cacheKey]
 
 	if exists {
 		return cachedValue
@@ -117,7 +181,7 @@ func findPath(startValveLabel string, goalValveLabel string, valves map[string]*
 		path = append(path, state.(*valveState).label)
 	}
 
-	cache[cacheKey] = path
+	pathCache[cacheKey] = path
 
 	return path
 }
