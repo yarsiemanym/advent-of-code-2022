@@ -88,6 +88,10 @@ func NewRockGenerator() *rockGenerator {
 	}
 }
 
+func (generator *rockGenerator) RockCount() int {
+	return generator.counter
+}
+
 func (generator *rockGenerator) NextRockIndex() int {
 	return generator.counter % len(rockTypes)
 }

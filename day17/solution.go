@@ -26,10 +26,20 @@ func solvePart1(jetsPattern string) string {
 	log.Debug("Solving part 1.")
 
 	chamber := NewChamber(jetsPattern)
+	ticks := 0
+
+	vt100.ClearScreen()
+	vt100.MoveCursorToHome()
+	print(chamber, ticks)
 
 	for rocks := 0; rocks < 2022; rocks = chamber.NumberOfSettledRocks() {
 		chamber.Tick()
+		ticks++
+		print(chamber, ticks)
 	}
+
+	print(chamber, ticks)
+	vt100.MoveCursorDown(54)
 
 	height := chamber.HeightOfSettledRocks()
 
@@ -46,7 +56,8 @@ func solvePart2(jetsPattern string) string {
 	return "Not Implemented"
 }
 
-func print(chamber *chamber, ticks int, rocks int) {
+func print(chamber *chamber, ticks int) {
+	vt100.SaveCursorPosition()
 	output := chamber.String()
 	output = strings.ReplaceAll(output, "|", vt100.Sprint("|", vt100.RedForegroundAttribute))
 	output = strings.ReplaceAll(output, "-", vt100.Sprint("-", vt100.RedForegroundAttribute))
@@ -54,7 +65,7 @@ func print(chamber *chamber, ticks int, rocks int) {
 	output = strings.ReplaceAll(output, "#", vt100.Sprint("#", vt100.BlueForegroundAttribute))
 	output = strings.ReplaceAll(output, "@", vt100.Sprint("@", vt100.GreenForegroundAttribute))
 	vt100.Printf("Tick:\t%d\n", []any{ticks})
-	vt100.Printf("Rocks:\t%d\n", []any{rocks})
+	vt100.Printf("Rocks:\t%d\n", []any{chamber.NumberOfSettledRocks()})
 	vt100.Printf("Height:\t%d\n", []any{chamber.HeightOfSettledRocks()})
 	vt100.Print(output)
 	vt100.RestoreCursorPosition()

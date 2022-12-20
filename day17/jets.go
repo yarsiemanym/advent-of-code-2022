@@ -18,6 +18,10 @@ func (jets *jets) Blast() rune {
 	return direction
 }
 
+func (jets *jets) BlastCount() int {
+	return jets.counter
+}
+
 func (jets *jets) NextBlastIndex() int {
 	return jets.counter % len(jets.pattern)
 }

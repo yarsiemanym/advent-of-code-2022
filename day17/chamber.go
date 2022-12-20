@@ -83,7 +83,7 @@ func (chamber *chamber) MoveRock(vector *common.Point) bool {
 	rock := chamber.fallingRock
 	collides := false
 
-	for y := 0; !collides && y < rock.Height(); y++ {
+	for y := rock.Height() - 1; !collides && y >= 0; y-- {
 		for x := 0; !collides && x < rock.Width(); x++ {
 			relativePoint := common.New2DPoint(x, y)
 			absolutePoint := chamber.fallingRockPosition.Add(common.New2DPoint(x, -y))
