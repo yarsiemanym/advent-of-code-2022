@@ -11,7 +11,7 @@ func Sprint(text string, attributes ...string) string {
 	return output
 }
 
-func Sprintf(format string, values []interface{}, attributes ...string) string {
+func Sprintf(format string, values []any, attributes ...string) string {
 	text := fmt.Sprintf(format, values...)
 	return Sprint(text, attributes...)
 }
@@ -21,7 +21,7 @@ func Sprintln(text string, attributes ...string) string {
 	return Sprint(text, attributes...)
 }
 
-func Printf(format string, values []interface{}, attributes ...string) {
+func Printf(format string, values []any, attributes ...string) {
 	text := fmt.Sprintf(format, values...)
 	Print(text, attributes...)
 }

@@ -13,7 +13,7 @@ func Test_Solve_Test1(t *testing.T) {
 		InputFile: "test1.txt",
 	}
 
-	expectedPart1 := "Not Implemented"
+	expectedPart1 := "3068"
 	expectedPart2 := "Not Implemented"
 	answer := Solve(puzzle)
 

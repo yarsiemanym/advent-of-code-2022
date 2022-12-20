@@ -84,6 +84,10 @@ func Reduce(numbers ...int) []int {
 	return numbers
 }
 
+func LeastCommonMultiple(a int, b int) int {
+	return a / GreatestCommonFactor(a, b) * b
+}
+
 func GreatestCommonFactor(a int, b int) int {
 
 	if a < 0 {
