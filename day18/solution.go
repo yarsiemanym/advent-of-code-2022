@@ -1,6 +1,8 @@
 package day18
 
 import (
+	"strconv"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yarsiemanym/advent-of-code-2022/common"
@@ -8,28 +10,31 @@ import (
 
 func Solve(puzzle *common.Puzzle) common.Answer {
 
+	droplet := parseDroplet(common.ReadFile(puzzle.InputFile))
+
 	return common.Answer{
 		Year:  puzzle.Year,
 		Day:   puzzle.Day,
-		Part1: solvePart1(),
-		Part2: solvePart2(),
+		Part1: solvePart1(droplet),
+		Part2: solvePart2(droplet),
 	}
 }
 
-func solvePart1() string {
+func solvePart1(droplet *droplet) string {
 	log.Debug("Solving part 1.")
 
-	// TODO
+	surfaceArea := droplet.SurfaceArea()
 
 	log.Debug("Part 1 solved.")
-	return "Not Implemented"
+	return strconv.Itoa(surfaceArea)
 }
 
-func solvePart2() string {
+func solvePart2(droplet *droplet) string {
 	log.Debug("Solving part 2.")
 
-	// TODO
+	droplet.DetectPockets()
+	surfaceArea := droplet.SurfaceArea()
 
 	log.Debug("Part 2 solved.")
-	return "Not Implemented"
+	return strconv.Itoa(surfaceArea)
 }
