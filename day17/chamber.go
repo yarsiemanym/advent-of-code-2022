@@ -1,6 +1,8 @@
 package day17
 
 import (
+	"strconv"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yarsiemanym/advent-of-code-2022/common"
@@ -10,6 +12,17 @@ var leftVector = common.New2DPoint(-1, 0)
 var rightVector = common.New2DPoint(1, 0)
 var downVector = common.New2DPoint(0, -1)
 
+type chamberStateKey struct {
+	rockPatternIndex int
+	jetPatternIndex  int
+	topology         string
+}
+
+type chamberStateValue struct {
+	rockHeight int
+	rockCount  int
+}
+
 type chamber struct {
 	spaces              [][]rune
 	rockGenerator       *rockGenerator
@@ -17,6 +30,7 @@ type chamber struct {
 	fallingRock         *rock
 	fallingRockPosition *common.Point
 	settledRockCounter  int
+	stateCache          map[chamberStateKey]chamberStateValue
 }
 
 func NewChamber(jetsPattern string) *chamber {
@@ -32,6 +46,7 @@ func NewChamber(jetsPattern string) *chamber {
 		fallingRock:         nil,
 		fallingRockPosition: nil,
 		settledRockCounter:  0,
+		stateCache:          map[chamberStateKey]chamberStateValue{},
 	}
 }
 
@@ -194,6 +209,75 @@ func (chamber *chamber) GrowTo(desiredHeight int) {
 	for y := chamber.Height(); y < desiredHeight; y++ {
 		chamber.spaces = append(chamber.spaces, []rune{emptySpace, emptySpace, emptySpace, emptySpace, emptySpace, emptySpace, emptySpace})
 	}
+}
+
+func (chamber *chamber) CurrentState() (*chamberStateKey, *chamberStateValue) {
+	key := &chamberStateKey{
+		rockPatternIndex: chamber.rockGenerator.NextRockIndex(),
+		jetPatternIndex:  chamber.jets.NextBlastIndex(),
+		topology:         chamber.ScanTopology(),
+	}
+
+	value := &chamberStateValue{
+		rockHeight: chamber.HeightOfSettledRocks(),
+		rockCount:  chamber.settledRockCounter,
+	}
+
+	return key, value
+}
+
+func (chamber *chamber) HasLooped() bool {
+
+	if chamber.fallingRock != nil {
+		return false
+	}
+
+	key, value := chamber.CurrentState()
+
+	_, exists := chamber.stateCache[*key]
+
+	if !exists {
+		chamber.stateCache[*key] = *value
+	}
+
+	return exists
+}
+
+func (chamber *chamber) LoopState() (*chamberStateKey, *chamberStateValue, *chamberStateValue) {
+	key, currentValue := chamber.CurrentState()
+
+	startValue, exists := chamber.stateCache[*key]
+
+	if exists {
+		return key, &startValue, currentValue
+	} else {
+		return nil, nil, nil
+	}
+}
+
+func (chamber *chamber) ScanTopology() string {
+	topology := make([]int, chamber.Width())
+
+	for x := 0; x < chamber.Width(); x++ {
+		for y := chamber.Height() - 1; y >= 0; y-- {
+			if chamber.spaces[y][x] == settledRock {
+				topology[x] = chamber.Height() - y
+				break
+			}
+		}
+	}
+
+	output := ""
+
+	for x := 0; x < chamber.Width(); x++ {
+		output += strconv.Itoa(topology[x]) + " "
+	}
+
+	return output
+}
+
+func (chamber *chamber) FastForward(rockCount int) {
+
 }
 
 func (chamber *chamber) String() string {

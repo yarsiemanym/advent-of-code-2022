@@ -28,18 +28,18 @@ func solvePart1(jetsPattern string) string {
 	chamber := NewChamber(jetsPattern)
 	ticks := 0
 
-	vt100.ClearScreen()
-	vt100.MoveCursorToHome()
-	print(chamber, ticks)
+	//vt100.ClearScreen()
+	//vt100.MoveCursorToHome()
+	//print(chamber, ticks)
 
 	for rocks := 0; rocks < 2022; rocks = chamber.NumberOfSettledRocks() {
 		chamber.Tick()
 		ticks++
-		print(chamber, ticks)
+		//print(chamber, ticks)
 	}
 
-	print(chamber, ticks)
-	vt100.MoveCursorDown(54)
+	//print(chamber, ticks)
+	//vt100.MoveCursorDown(54)
 
 	height := chamber.HeightOfSettledRocks()
 
@@ -50,10 +50,27 @@ func solvePart1(jetsPattern string) string {
 func solvePart2(jetsPattern string) string {
 	log.Debug("Solving part 2.")
 
-	// TODO
+	oneTrillion := 1000000000000
+	chamber := NewChamber(jetsPattern)
+
+	for !chamber.HasLooped() {
+		chamber.Tick()
+	}
+	_, startValue, currentValue := chamber.LoopState()
+
+	numRocksPerLoop := currentValue.rockCount - startValue.rockCount
+	heightGainedPerLoop := currentValue.rockHeight - startValue.rockHeight
+	numLoops := ((oneTrillion - startValue.rockCount) / numRocksPerLoop) - 1
+	rocksAfterLoops := startValue.rockCount + (numRocksPerLoop * numLoops)
+
+	for rockCount := rocksAfterLoops; rockCount < oneTrillion; rockCount = (numRocksPerLoop * numLoops) + chamber.NumberOfSettledRocks() {
+		chamber.Tick()
+	}
+
+	totalHeight := chamber.HeightOfSettledRocks() + (heightGainedPerLoop * numLoops)
 
 	log.Debug("Part 2 solved.")
-	return "Not Implemented"
+	return strconv.Itoa(totalHeight)
 }
 
 func print(chamber *chamber, ticks int) {
