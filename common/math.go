@@ -134,3 +134,13 @@ func Sign(number int) int {
 
 	return 0
 }
+
+func TriangularSum(min int, max int) int {
+	sum := max * (max + 1) / 2
+
+	if min > 0 {
+		sum -= TriangularSum(0, min)
+	}
+
+	return sum
+}
