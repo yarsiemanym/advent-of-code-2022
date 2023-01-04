@@ -109,7 +109,15 @@ func Test_MedianInt_Even(t *testing.T) {
 }
 
 func Test_TriangularSum(t *testing.T) {
-	sum := TriangularSum(2, 4)
+	sum := TriangularSum(4)
+
+	if sum != 10 {
+		t.Errorf("Expected 10 but got %d.", sum)
+	}
+}
+
+func Test_TrapezoidalSum(t *testing.T) {
+	sum := TrapezoidalSum(2, 4)
 
 	if sum != 7 {
 		t.Errorf("Expected 8 but got %d.", sum)

@@ -135,11 +135,15 @@ func Sign(number int) int {
 	return 0
 }
 
-func TriangularSum(min int, max int) int {
+func TriangularSum(number int) int {
+	return number * (number + 1) / 2
+}
+
+func TrapezoidalSum(min int, max int) int {
 	sum := max * (max + 1) / 2
 
 	if min > 0 {
-		sum -= TriangularSum(0, min)
+		sum -= TriangularSum(min)
 	}
 
 	return sum
