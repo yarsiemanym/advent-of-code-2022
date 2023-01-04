@@ -2,7 +2,6 @@ package day19
 
 import (
 	"fmt"
-	"math"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/yarsiemanym/advent-of-code-2022/common"
@@ -44,7 +43,6 @@ func (currentState *simulationState) Run() int {
 
 func (currentState *simulationState) DepthFirstSearch(bestGeodes *int) {
 	if currentState.TimeRemaining() <= 0 {
-		log.Info(currentState)
 		return
 	}
 
@@ -70,12 +68,10 @@ func (currentState *simulationState) DepthFirstSearch(bestGeodes *int) {
 		log.Debugf("T=%d, Building a(n) %s robot.", buildState.time, robotType)
 	}
 
-	if len(nextStates) == 0 {
-		noBuildState := currentState.Clone()
-		noBuildState.Tick()
-		noBuildState.CollectMaterials()
-		nextStates = append(nextStates, noBuildState)
-	}
+	noBuildState := currentState.Clone()
+	noBuildState.Tick()
+	noBuildState.CollectMaterials()
+	nextStates = append(nextStates, noBuildState)
 
 	for _, nextState := range nextStates {
 		*bestGeodes = common.MaxInt(*bestGeodes, nextState.stockpiledMaterials[geode])
@@ -100,18 +96,25 @@ func (state *simulationState) CanBuild(robotType material) bool {
 func (state *simulationState) ShouldBuild(robotType material) bool {
 	shouldBuild := false
 
-	timeToOreCrtiticalMass := common.MaxInt(state.TimeToOreCriticalMass(ore),
-		state.TimeToOreCriticalMass(clay),
-		state.TimeToOreCriticalMass(obsidian),
-		state.TimeToOreCriticalMass(geode))
-
 	switch robotType {
 	case ore:
-		shouldBuild = timeToOreCrtiticalMass > 0 && state.TimeRemaining() > 4
+		oreStockpile := state.stockpiledMaterials[ore]
+		oreProduction := state.activeRobots[ore]
+		oreDemand := common.MaxInt( // state.blueprint.robots[ore].requiredMaterials[ore],
+			state.blueprint.robots[clay].requiredMaterials[ore],
+			state.blueprint.robots[obsidian].requiredMaterials[ore],
+			state.blueprint.robots[geode].requiredMaterials[ore])
+		shouldBuild = oreProduction < oreDemand && oreStockpile < oreDemand
 	case clay:
-		shouldBuild = state.TimeToClayCriticalMass() > timeToOreCrtiticalMass && state.TimeRemaining() > 6
+		clayStockpile := state.stockpiledMaterials[clay]
+		clayProduction := state.activeRobots[clay]
+		clayDemand := state.blueprint.robots[obsidian].requiredMaterials[clay]
+		shouldBuild = clayProduction < clayDemand && clayStockpile < clayDemand
 	case obsidian:
-		shouldBuild = state.TimeToObsidianCriticalMass() > timeToOreCrtiticalMass && state.TimeRemaining() > 4
+		obsidianStockpile := state.stockpiledMaterials[obsidian]
+		obsidianProduction := state.activeRobots[obsidian]
+		obsidianDemand := state.blueprint.robots[geode].requiredMaterials[obsidian]
+		shouldBuild = obsidianProduction < obsidianDemand && obsidianStockpile < obsidianDemand
 	case geode:
 		shouldBuild = true
 	default:
@@ -125,54 +128,6 @@ func (state *simulationState) ShouldBuild(robotType material) bool {
 	}
 
 	return shouldBuild
-}
-
-func (state *simulationState) TimeToOreCriticalMass(robotType material) int {
-	oreDemand := state.blueprint.robots[robotType].requiredMaterials[ore]
-	oreDeficit := oreDemand - state.stockpiledMaterials[ore]
-	timeToCiticalMass := math.MaxInt
-	robotCount := state.activeRobots[ore]
-	if robotCount > 0 {
-		timeToCiticalMass = oreDeficit / robotCount
-
-		if timeToCiticalMass%robotCount != 0 {
-			timeToCiticalMass++
-		}
-	}
-
-	return common.MaxInt(timeToCiticalMass, 0)
-}
-
-func (state *simulationState) TimeToClayCriticalMass() int {
-	clayDemand := state.blueprint.robots[obsidian].requiredMaterials[clay]
-	clayDeficit := clayDemand - state.stockpiledMaterials[clay]
-	timeToCiticalMass := math.MaxInt
-	robotCount := state.activeRobots[clay]
-	if robotCount > 0 {
-		timeToCiticalMass = clayDeficit / robotCount
-
-		if timeToCiticalMass%robotCount != 0 {
-			timeToCiticalMass++
-		}
-	}
-
-	return common.MaxInt(timeToCiticalMass, 0)
-}
-
-func (state *simulationState) TimeToObsidianCriticalMass() int {
-	obsidianDemand := state.blueprint.robots[geode].requiredMaterials[obsidian]
-	obsidianDeficit := obsidianDemand - state.stockpiledMaterials[obsidian]
-	timeToCiticalMass := math.MaxInt
-	robotCount := state.activeRobots[obsidian]
-	if robotCount > 0 {
-		timeToCiticalMass = obsidianDeficit / robotCount
-
-		if timeToCiticalMass%robotCount != 0 {
-			timeToCiticalMass++
-		}
-	}
-
-	return common.MaxInt(timeToCiticalMass, 0)
 }
 
 func (state *simulationState) IsFutile(bestGeodes *int) bool {
