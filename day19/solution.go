@@ -37,7 +37,6 @@ func solvePart1(blueprints map[int]*blueprint) string {
 		geodeCount := simulation.Run()
 		log.Infof("Blueprint %d yielded %d geodes.", id, geodeCount)
 		qualityLevel += id * geodeCount
-
 	}
 
 	log.Debug("Part 1 solved.")
@@ -47,8 +46,17 @@ func solvePart1(blueprints map[int]*blueprint) string {
 func solvePart2(blueprints map[int]*blueprint) string {
 	log.Debug("Solving part 2.")
 
-	// TODO
+	product := 1
+
+	for id := 1; id <= len(blueprints) && id <= 3; id++ {
+		blueprint := blueprints[id]
+		simulation := NewSimulation(blueprint, 32)
+		geodeCount := simulation.Run()
+		log.Infof("Blueprint %d yielded %d geodes.", id, geodeCount)
+		product *= geodeCount
+
+	}
 
 	log.Debug("Part 2 solved.")
-	return "Not Implemented"
+	return strconv.Itoa(product)
 }
