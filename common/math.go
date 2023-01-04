@@ -140,7 +140,7 @@ func TriangularSum(number int) int {
 }
 
 func TrapezoidalSum(min int, max int) int {
-	sum := max * (max + 1) / 2
+	sum := TriangularSum(max)
 
 	if min > 0 {
 		sum -= TriangularSum(min)
