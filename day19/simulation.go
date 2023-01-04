@@ -2,6 +2,7 @@ package day19
 
 import (
 	"fmt"
+	"math"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/yarsiemanym/advent-of-code-2022/common"
@@ -37,50 +38,48 @@ func NewSimulation(blueprint *blueprint, timeLimit int) *simulationState {
 
 func (currentState *simulationState) Run() int {
 	bestGeodes := 0
-	currentState.run(&bestGeodes)
+	currentState.DepthFirstSearch(&bestGeodes)
 	return bestGeodes
 }
 
-func (currentState *simulationState) run(bestGeodes *int) {
-	if currentState.stockpiledMaterials[geode] > *bestGeodes {
-		*bestGeodes = currentState.stockpiledMaterials[geode]
-		log.Debugf("New best geodes: %d", *bestGeodes)
-		log.Debug(currentState)
-	}
-
-	if currentState.time >= currentState.timeLimit {
+func (currentState *simulationState) DepthFirstSearch(bestGeodes *int) {
+	if currentState.TimeRemaining() <= 0 {
+		log.Info(currentState)
 		return
 	}
 
-	if *bestGeodes >= currentState.stockpiledMaterials[geode]+common.TriangularSum(currentState.activeRobots[geode], currentState.activeRobots[geode]+currentState.TimeRemaining()) {
+	if currentState.IsFutile(bestGeodes) {
 		return
 	}
 
-	noBuildState := currentState.Clone()
-	noBuildState.Tick()
-	noBuildState.CollectMaterials()
-	nextStates := []*simulationState{noBuildState}
+	nextStates := []*simulationState{}
 
 	for robotType := geode; robotType >= ore; robotType-- {
+		buildState := currentState.Clone()
+		buildState.Tick()
 
-		if !currentState.CanBuild(robotType) {
+		if !buildState.CanBuild(robotType) || !buildState.ShouldBuild(robotType) {
 			continue
 		}
 
-		if !currentState.ShouldBuild(robotType) {
-			break
-		}
-
-		buildState := currentState.Clone()
-		buildState.Tick()
 		buildState.Build(robotType)
 		buildState.CollectMaterials()
 		buildState.ActivateRobot(robotType)
 		nextStates = append(nextStates, buildState)
+
+		log.Debugf("T=%d, Building a(n) %s robot.", buildState.time, robotType)
+	}
+
+	if len(nextStates) == 0 {
+		noBuildState := currentState.Clone()
+		noBuildState.Tick()
+		noBuildState.CollectMaterials()
+		nextStates = append(nextStates, noBuildState)
 	}
 
 	for _, nextState := range nextStates {
-		nextState.run(bestGeodes)
+		*bestGeodes = common.MaxInt(*bestGeodes, nextState.stockpiledMaterials[geode])
+		nextState.DepthFirstSearch(bestGeodes)
 	}
 }
 
@@ -89,29 +88,95 @@ func (state *simulationState) CanBuild(robotType material) bool {
 	robot := state.blueprint.robots[robotType]
 	for material := ore; material <= geode; material++ {
 		if state.stockpiledMaterials[material] < robot.requiredMaterials[material] {
+			log.Debugf("T=%d, Can not build a(n) %s robot.", state.time, robotType)
 			return false
 		}
 	}
 
+	log.Debugf("T=%d, Can build a(n) %s robot.", state.time, robotType)
 	return true
 }
 
 func (state *simulationState) ShouldBuild(robotType material) bool {
+	shouldBuild := false
+
+	timeToOreCrtiticalMass := common.MaxInt(state.TimeToOreCriticalMass(ore),
+		state.TimeToOreCriticalMass(clay),
+		state.TimeToOreCriticalMass(obsidian),
+		state.TimeToOreCriticalMass(geode))
+
 	switch robotType {
 	case ore:
-		return state.activeRobots[ore] < state.blueprint.robots[ore].requiredMaterials[ore] ||
-			state.activeRobots[ore] < state.blueprint.robots[clay].requiredMaterials[ore] ||
-			state.activeRobots[ore] < state.blueprint.robots[obsidian].requiredMaterials[ore] ||
-			state.activeRobots[ore] < state.blueprint.robots[geode].requiredMaterials[ore]
+		shouldBuild = timeToOreCrtiticalMass > 0 && state.TimeRemaining() > 4
 	case clay:
-		return state.activeRobots[clay] < state.blueprint.robots[obsidian].requiredMaterials[clay]
+		shouldBuild = state.TimeToClayCriticalMass() > timeToOreCrtiticalMass && state.TimeRemaining() > 6
 	case obsidian:
-		return state.activeRobots[obsidian] < state.blueprint.robots[geode].requiredMaterials[obsidian]
+		shouldBuild = state.TimeToObsidianCriticalMass() > timeToOreCrtiticalMass && state.TimeRemaining() > 4
 	case geode:
-		return true
+		shouldBuild = true
 	default:
-		return false
+		shouldBuild = false
 	}
+
+	if shouldBuild {
+		log.Debugf("T=%d, Should build a(n) %s robot.", state.time, robotType)
+	} else {
+		log.Debugf("T=%d, Should not build a(n) %s robot.", state.time, robotType)
+	}
+
+	return shouldBuild
+}
+
+func (state *simulationState) TimeToOreCriticalMass(robotType material) int {
+	oreDemand := state.blueprint.robots[robotType].requiredMaterials[ore]
+	oreDeficit := oreDemand - state.stockpiledMaterials[ore]
+	timeToCiticalMass := math.MaxInt
+	robotCount := state.activeRobots[ore]
+	if robotCount > 0 {
+		timeToCiticalMass = oreDeficit / robotCount
+
+		if timeToCiticalMass%robotCount != 0 {
+			timeToCiticalMass++
+		}
+	}
+
+	return common.MaxInt(timeToCiticalMass, 0)
+}
+
+func (state *simulationState) TimeToClayCriticalMass() int {
+	clayDemand := state.blueprint.robots[obsidian].requiredMaterials[clay]
+	clayDeficit := clayDemand - state.stockpiledMaterials[clay]
+	timeToCiticalMass := math.MaxInt
+	robotCount := state.activeRobots[clay]
+	if robotCount > 0 {
+		timeToCiticalMass = clayDeficit / robotCount
+
+		if timeToCiticalMass%robotCount != 0 {
+			timeToCiticalMass++
+		}
+	}
+
+	return common.MaxInt(timeToCiticalMass, 0)
+}
+
+func (state *simulationState) TimeToObsidianCriticalMass() int {
+	obsidianDemand := state.blueprint.robots[geode].requiredMaterials[obsidian]
+	obsidianDeficit := obsidianDemand - state.stockpiledMaterials[obsidian]
+	timeToCiticalMass := math.MaxInt
+	robotCount := state.activeRobots[obsidian]
+	if robotCount > 0 {
+		timeToCiticalMass = obsidianDeficit / robotCount
+
+		if timeToCiticalMass%robotCount != 0 {
+			timeToCiticalMass++
+		}
+	}
+
+	return common.MaxInt(timeToCiticalMass, 0)
+}
+
+func (state *simulationState) IsFutile(bestGeodes *int) bool {
+	return *bestGeodes >= state.stockpiledMaterials[geode]+common.TrapezoidalSum(state.activeRobots[geode], state.activeRobots[geode]+state.TimeRemaining())
 }
 
 func (state *simulationState) Build(robotType material) {

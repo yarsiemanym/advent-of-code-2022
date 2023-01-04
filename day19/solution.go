@@ -32,10 +32,11 @@ func solvePart1(blueprints map[int]*blueprint) string {
 	qualityLevel := 0
 
 	for id := 1; id <= len(blueprints); id++ {
+		//id := 1
 		blueprint := blueprints[id]
 		simulation := NewSimulation(blueprint, 24)
 		geodeCount := simulation.Run()
-		log.Debugf("Blueprint %d yielded %d geodes.", id, geodeCount)
+		log.Infof("Blueprint %d yielded %d geodes.", id, geodeCount)
 		qualityLevel += id * geodeCount
 
 	}
