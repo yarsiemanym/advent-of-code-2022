@@ -33,6 +33,7 @@ test: session
 	go test day17/*.go
 	go test day18/*.go
 	go test day19/*.go
+	go test day20/*.go
 
 .PHONY:
 build: advent-of-code-2022
@@ -70,6 +71,7 @@ run-all: build session
 	AOC_LOG_LEVEL=$(LOG_LEVEL) ./advent-of-code-2022 17
 	AOC_LOG_LEVEL=$(LOG_LEVEL) ./advent-of-code-2022 18
 	AOC_LOG_LEVEL=$(LOG_LEVEL) ./advent-of-code-2022 19
+	AOC_LOG_LEVEL=$(LOG_LEVEL) ./advent-of-code-2022 20
 
 .PHONY:
 install: $(INSTALL_PATH)
